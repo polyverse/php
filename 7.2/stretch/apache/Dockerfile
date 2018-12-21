@@ -3,13 +3,13 @@ WORKDIR /go/src/github.com/polyverse/
 COPY . .
 RUN git clone https://github.com/polyverse/php-scrambler.git
 WORKDIR ./php-scrambler
-RUN git checkout 779e6567a7473b411fd7c231b8ef38ac8805fbb3
+RUN git checkout 8de1d48c2d410d1f3c4d02b9742dba164486c3fc
 RUN go get -v .
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
 WORKDIR /go/src/github.com/polyverse/
 RUN git clone https://github.com/polyverse/tok-php-transformer.git
 WORKDIR ./tok-php-transformer
-RUN git checkout 76efde20927324fd84b2f800cc515c1d577ba633
+RUN git checkout e7093d3fb447f462ae8400dc03bccaf9a5cd33c3
 
 FROM debian:stretch-slim
 
@@ -171,8 +171,8 @@ RUN set -xe; \
 
 COPY docker-php-source /usr/local/bin/
 COPY scripts/ /usr/local/bin/polyscripting
-ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting/"
-ENV PHP_SRC_PATH "/usr/src/php/"
+ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
+ENV PHP_SRC_PATH "/usr/src/php"
 
 RUN set -eux; \
 	\
