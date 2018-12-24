@@ -9,7 +9,7 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
 WORKDIR /go/src/github.com/polyverse/
 RUN git clone https://github.com/polyverse/tok-php-transformer.git
 WORKDIR ./tok-php-transformer
-RUN git checkout e7093d3fb447f462ae8400dc03bccaf9a5cd33c3
+RUN git checkout b9948a08fea6c1f9e64a33c711fa21bdcceaecf6
 
 FROM debian:stretch-slim
 
