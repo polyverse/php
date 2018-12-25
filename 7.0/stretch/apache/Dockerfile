@@ -48,7 +48,7 @@ RUN apt-get update \
 ENV APACHE_CONFDIR /etc/apache2
 ENV APACHE_ENVVARS $APACHE_CONFDIR/envvars
 
-RUN set -ex \
+RUN set -eux; \
 	\
 # generically convert lines like
 #   export APACHE_RUN_USER=www-data
@@ -56,32 +56,31 @@ RUN set -ex \
 #   : ${APACHE_RUN_USER:=www-data}
 #   export APACHE_RUN_USER
 # so that they can be overridden at runtime ("-e APACHE_RUN_USER=...")
-	&& sed -ri 's/^export ([^=]+)=(.*)$/: ${\1:=\2}\nexport \1/' "$APACHE_ENVVARS" \
+	sed -ri 's/^export ([^=]+)=(.*)$/: ${\1:=\2}\nexport \1/' "$APACHE_ENVVARS"; \
 	\
 # setup directories and permissions
-	&& . "$APACHE_ENVVARS" \
-	&& for dir in \
+	. "$APACHE_ENVVARS"; \
+	for dir in \
 		"$APACHE_LOCK_DIR" \
 		"$APACHE_RUN_DIR" \
 		"$APACHE_LOG_DIR" \
 		/var/www/html \
 	; do \
-		rm -rvf "$dir" \
-		&& mkdir -p "$dir" \
-		&& chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$dir" \
+		rm -rvf "$dir"; \
+		mkdir -p "$dir"; \
+		chown "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$dir"; \
 # allow running as an arbitrary user (https://github.com/docker-library/php/issues/743)
-		&& chmod 1777 "$dir" \
-	; done
+		chmod 777 "$dir"; \
+	done; \
+	\
+# logs should go to stdout / stderr
+	ln -sfT /dev/stderr "$APACHE_LOG_DIR/error.log"; \
+	ln -sfT /dev/stdout "$APACHE_LOG_DIR/access.log"; \
+	ln -sfT /dev/stdout "$APACHE_LOG_DIR/other_vhosts_access.log"; \
+	chown -R --no-dereference "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_LOG_DIR"
 
 # Apache + PHP requires preforking Apache for best results
 RUN a2dismod mpm_event && a2enmod mpm_prefork
-
-# logs should go to stdout / stderr
-RUN set -ex \
-	&& . "$APACHE_ENVVARS" \
-	&& ln -sfT /dev/stderr "$APACHE_LOG_DIR/error.log" \
-	&& ln -sfT /dev/stdout "$APACHE_LOG_DIR/access.log" \
-	&& ln -sfT /dev/stdout "$APACHE_LOG_DIR/other_vhosts_access.log"
 
 # PHP files should be handled by PHP, and should be preferred over any other file type
 RUN { \
@@ -115,9 +114,9 @@ ENV PHP_LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie"
 
 ENV GPG_KEYS 1A4E8B7277C42E53DBA9C7B9BCAA30EA9C0D5763 6E4F6AB321FDC07F2C332E3AC2BF0BC433CFC8B3
 
-ENV PHP_VERSION 7.0.32
-ENV PHP_URL="https://secure.php.net/get/php-7.0.32.tar.xz/from/this/mirror" PHP_ASC_URL="https://secure.php.net/get/php-7.0.32.tar.xz.asc/from/this/mirror"
-ENV PHP_SHA256="ff6f62afeb32c71b3b89ecbd42950ef6c5e0c329cc6e1c58ffac47e6f1f883c4" PHP_MD5=""
+ENV PHP_VERSION 7.0.33
+ENV PHP_URL="https://secure.php.net/get/php-7.0.33.tar.xz/from/this/mirror" PHP_ASC_URL="https://secure.php.net/get/php-7.0.33.tar.xz.asc/from/this/mirror"
+ENV PHP_SHA256="ab8c5be6e32b1f8d032909dedaaaa4bbb1a209e519abb01a52ce3914f9a13d96" PHP_MD5=""
 
 RUN set -xe; \
 	\

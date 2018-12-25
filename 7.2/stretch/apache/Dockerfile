@@ -9,7 +9,7 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
 WORKDIR /go/src/github.com/polyverse/
 RUN git clone https://github.com/polyverse/tok-php-transformer.git
 WORKDIR ./tok-php-transformer
-RUN git checkout e7093d3fb447f462ae8400dc03bccaf9a5cd33c3
+RUN git checkout ff08cca989bd3c876955ce01f9692d7c1239af9d
 
 FROM debian:stretch-slim
 
@@ -58,7 +58,7 @@ RUN apt-get update \
 ENV APACHE_CONFDIR /etc/apache2
 ENV APACHE_ENVVARS $APACHE_CONFDIR/envvars
 
-RUN set -ex \
+RUN set -eux; \
 	\
 # generically convert lines like
 #   export APACHE_RUN_USER=www-data
@@ -66,32 +66,31 @@ RUN set -ex \
 #   : ${APACHE_RUN_USER:=www-data}
 #   export APACHE_RUN_USER
 # so that they can be overridden at runtime ("-e APACHE_RUN_USER=...")
-	&& sed -ri 's/^export ([^=]+)=(.*)$/: ${\1:=\2}\nexport \1/' "$APACHE_ENVVARS" \
+	sed -ri 's/^export ([^=]+)=(.*)$/: ${\1:=\2}\nexport \1/' "$APACHE_ENVVARS"; \
 	\
 # setup directories and permissions
-	&& . "$APACHE_ENVVARS" \
-	&& for dir in \
+	. "$APACHE_ENVVARS"; \
+	for dir in \
 		"$APACHE_LOCK_DIR" \
 		"$APACHE_RUN_DIR" \
 		"$APACHE_LOG_DIR" \
 		/var/www/html \
 	; do \
-		rm -rvf "$dir" \
-		&& mkdir -p "$dir" \
-		&& chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$dir" \
+		rm -rvf "$dir"; \
+		mkdir -p "$dir"; \
+		chown "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$dir"; \
 # allow running as an arbitrary user (https://github.com/docker-library/php/issues/743)
-		&& chmod 1777 "$dir" \
-	; done
+		chmod 777 "$dir"; \
+	done; \
+	\
+# logs should go to stdout / stderr
+	ln -sfT /dev/stderr "$APACHE_LOG_DIR/error.log"; \
+	ln -sfT /dev/stdout "$APACHE_LOG_DIR/access.log"; \
+	ln -sfT /dev/stdout "$APACHE_LOG_DIR/other_vhosts_access.log"; \
+	chown -R --no-dereference "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_LOG_DIR"
 
 # Apache + PHP requires preforking Apache for best results
 RUN a2dismod mpm_event && a2enmod mpm_prefork
-
-# logs should go to stdout / stderr
-RUN set -ex \
-	&& . "$APACHE_ENVVARS" \
-	&& ln -sfT /dev/stderr "$APACHE_LOG_DIR/error.log" \
-	&& ln -sfT /dev/stdout "$APACHE_LOG_DIR/access.log" \
-	&& ln -sfT /dev/stdout "$APACHE_LOG_DIR/other_vhosts_access.log"
 
 # PHP files should be handled by PHP, and should be preferred over any other file type
 RUN { \
@@ -124,10 +123,9 @@ ENV PHP_CPPFLAGS="$PHP_CFLAGS"
 ENV PHP_LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie"
 
 ENV GPG_KEYS 1729F83938DA44E27BA0F4D3DBDB397470D12172 B1B44D8F021E4E2D6021E995DC9FF8D3EE5AF27F
-
-ENV PHP_VERSION 7.2.12-polyscripted
-ENV PHP_URL="https://secure.php.net/get/php-7.2.12.tar.xz/from/this/mirror" PHP_ASC_URL="https://secure.php.net/get/php-7.2.12.tar.xz.asc/from/this/mirror"
-ENV PHP_SHA256="989c04cc879ee71a5e1131db867f3c5102f1f7565f805e2bb8bde33f93147fe1" PHP_MD5=""
+ENV PHP_VERSION 7.2.13-polyscripted
+ENV PHP_URL="https://secure.php.net/get/php-7.2.13.tar.xz/from/this/mirror" PHP_ASC_URL="https://secure.php.net/get/php-7.2.13.tar.xz.asc/from/this/mirror"
+ENV PHP_SHA256="14b0429abdb46b65c843e5882c9a8c46b31dfbf279c747293b8ab950c2644a4b" PHP_MD5=""
 
 RUN set -xe; \
 	\
