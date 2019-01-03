@@ -1,3 +1,16 @@
+FROM golang
+WORKDIR /go/src/github.com/polyverse/
+COPY . .
+RUN git clone https://github.com/polyverse/php-scrambler.git
+WORKDIR ./php-scrambler
+RUN git checkout 8de1d48c2d410d1f3c4d02b9742dba164486c3fc
+RUN go get -v .
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
+WORKDIR /go/src/github.com/polyverse/
+RUN git clone https://github.com/polyverse/tok-php-transformer.git
+WORKDIR ./tok-php-transformer
+RUN git checkout ff08cca989bd3c876955ce01f9692d7c1239af9d
+
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
 #
@@ -56,7 +69,7 @@ ENV PHP_LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie"
 
 ENV GPG_KEYS 1729F83938DA44E27BA0F4D3DBDB397470D12172 B1B44D8F021E4E2D6021E995DC9FF8D3EE5AF27F
 
-ENV PHP_VERSION 7.2.13
+ENV PHP_VERSION 7.2.13-polyscripted
 ENV PHP_URL="https://secure.php.net/get/php-7.2.13.tar.xz/from/this/mirror" PHP_ASC_URL="https://secure.php.net/get/php-7.2.13.tar.xz.asc/from/this/mirror"
 ENV PHP_SHA256="14b0429abdb46b65c843e5882c9a8c46b31dfbf279c747293b8ab950c2644a4b" PHP_MD5=""
 
@@ -93,6 +106,9 @@ RUN set -xe; \
 	apk del .fetch-deps
 
 COPY docker-php-source /usr/local/bin/
+COPY scripts/ /usr/local/bin/polyscripting
+ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
+ENV PHP_SRC_PATH "/usr/src/php"
 
 RUN set -xe \
 	&& apk add --no-cache --virtual .build-deps \
@@ -138,6 +154,7 @@ RUN set -xe \
 		--with-libedit \
 		--with-openssl \
 		--with-zlib \
+		PHP_EXTRA_VERSION="-polyscripted" \
 		\
 # bundled pcre does not support JIT on s390x
 # https://manpages.debian.org/stretch/libpcre3-dev/pcrejit.3.en.html#AVAILABILITY_OF_JIT_SUPPORT
@@ -213,6 +230,11 @@ RUN set -ex \
 		echo '[www]'; \
 		echo 'listen = 9000'; \
 	} | tee php-fpm.d/zz-docker.conf
+
+WORKDIR /usr/local/bin/polyscripting
+COPY --from=0 /go/src/github.com/polyverse/php-scrambler/php-scrambler /usr/local/bin/polyscripting
+COPY --from=0 /go/src/github.com/polyverse/tok-php-transformer/tok-php-transformer.php /usr/local/bin/polyscripting
+COPY --from=0 /go/src/github.com/polyverse/tok-php-transformer/snip-transform.php /usr/local/bin/polyscripting
 
 EXPOSE 9000
 CMD ["php-fpm"]
