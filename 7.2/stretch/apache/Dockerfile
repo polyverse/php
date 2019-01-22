@@ -1,15 +1,4 @@
-FROM golang
-WORKDIR /go/src/github.com/polyverse/
-COPY . .
-RUN git clone https://github.com/polyverse/php-scrambler.git
-WORKDIR ./php-scrambler
-RUN git checkout 8de1d48c2d410d1f3c4d02b9742dba164486c3fc
-RUN go get -v .
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
-WORKDIR /go/src/github.com/polyverse/
-RUN git clone https://github.com/polyverse/tok-php-transformer.git
-WORKDIR ./tok-php-transformer
-RUN git checkout ff08cca989bd3c876955ce01f9692d7c1239af9d
+FROM polyverse/polyscript-deps:daf00d716bd4b7d7be3b1fc22c7059364168a120
 
 FROM debian:stretch-slim
 
@@ -168,9 +157,14 @@ RUN set -xe; \
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $fetchDeps
 
 COPY docker-php-source /usr/local/bin/
-COPY scripts/ /usr/local/bin/polyscripting
+
+#POLYSCRIPTING ADDED
 ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
 ENV PHP_SRC_PATH "/usr/src/php"
+WORKDIR $POLYSCRIPT_PATH
+COPY --from=0 /tok-php-transformer/tok-php-transformer.php /tok-php-transformer/snip-transform.php ./
+COPY --from=0 /scripts/ .
+COPY --from=0 /apache/ .
 
 RUN set -eux; \
 	\
@@ -250,7 +244,7 @@ RUN set -eux; \
 		\
 		${PHP_EXTRA_CONFIGURE_ARGS:-} \
 	; \
-	/usr/local/bin/polyscripting/polyscript-enable; \
+	$POLYSCRIPT_PATH/polyscript-enable; \
 	find /usr/local/bin /usr/local/sbin -type f -executable -exec strip --strip-all '{}' + || true; \
 	\
 # https://github.com/docker-library/php/issues/692 (copy default example "php.ini" files somewhere easily discoverable)
@@ -274,11 +268,6 @@ RUN set -eux; \
 # https://github.com/docker-library/php/issues/443
 	pecl update-channels; \
 	rm -rf /tmp/pear ~/.pearrc
-
-WORKDIR /usr/local/bin/polyscripting
-COPY --from=0 /go/src/github.com/polyverse/php-scrambler/php-scrambler /usr/local/bin/polyscripting
-COPY --from=0 /go/src/github.com/polyverse/tok-php-transformer/tok-php-transformer.php /usr/local/bin/polyscripting
-COPY --from=0 /go/src/github.com/polyverse/tok-php-transformer/snip-transform.php /usr/local/bin/polyscripting
 
 COPY docker-php-ext-* docker-php-entrypoint /usr/local/bin/
 
