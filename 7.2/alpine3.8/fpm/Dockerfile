@@ -1,4 +1,4 @@
-FROM polyverse/polyscript-deps:daf00d716bd4b7d7be3b1fc22c7059364168a120
+FROM polyverse/polyscript-deps:860112d086e9d75a378d5e55af76bd0d93f8659e
 
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
