@@ -2,15 +2,15 @@
 set -Eeuo pipefail
 
 declare -A aliases=(
-	[7.3]='7 latest'
-	[7.4-rc]='rc'
+	[7.4]='7 latest'
+	[7.5-rc]='rc'
 )
 
 defaultDebianSuite='buster'
 declare -A debianSuites=(
 	#[7.4-rc]='buster'
 )
-defaultAlpineVersion='3.10'
+defaultAlpineVersion='3.11'
 declare -A alpineVersions=(
 	# /usr/src/php/ext/openssl/openssl.c:551:12: error: static declaration of 'RSA_set0_key' follows non-static declaration
 	# https://github.com/docker-library/php/pull/702#issuecomment-413341743
@@ -89,7 +89,7 @@ for version in "${versions[@]}"; do
 	# order here controls the order of the library/ file
 	for suite in \
 		buster stretch \
-		alpine{3.10,3.9} \
+		alpine{3.11,3.10} \
 	; do
 		for variant in \
 			cli \
@@ -126,9 +126,7 @@ for version in "${versions[@]}"; do
 			# 7.2 no longer supports s390x
 			# #error "Not yet implemented"
 			# https://github.com/docker-library/php/pull/487#issue-254755661
-			if [[ "$version" = 7.* ]] && [ "$version" != '7.1' ]; then
-				variantArches="$(echo " $variantArches " | sed -r -e 's/ s390x//g')"
-			fi
+			variantArches="$(echo " $variantArches " | sed -r -e 's/ s390x//g')"
 
 			echo
 			cat <<-EOE
