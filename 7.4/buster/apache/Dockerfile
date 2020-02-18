@@ -3,7 +3,7 @@
 #
 # PLEASE DO NOT EDIT IT DIRECTLY.
 #
-FROM polyverse/polyscript-deps:29fc2e4b99953abeb3f5653481d19c818684d393
+FROM polyverse/polyscript-deps:29fc2e4b99953abeb3f5653481d19c818684d393 AS polyscript-deps
 
 FROM debian:buster-slim
 
@@ -172,9 +172,9 @@ COPY docker-php-source /usr/local/bin/
 ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
 ENV PHP_SRC_PATH "/usr/src/php"
 WORKDIR $POLYSCRIPT_PATH
-COPY --from=0 /tok-php-transformer/tok-php-transformer.php /tok-php-transformer/snip-transform.php ./
-COPY --from=0 /scripts/ .
-COPY --from=0 /apache/ .
+COPY --from=polyscript-deps /tok-php-transformer/tok-php-transformer.php /tok-php-transformer/snip-transform.php ./
+COPY --from=polyscript-deps /scripts/ .
+COPY --from=polyscript-deps /apache/ .
 
 RUN set -eux; \
 	\
