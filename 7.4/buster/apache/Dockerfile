@@ -40,8 +40,6 @@ RUN set -eux; \
 		xz-utils \
 		bison \
 		libxml2-dev \
-		libargon2-0-dev \
-		libncurses-dev \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
