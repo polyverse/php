@@ -9,7 +9,8 @@ headsha=$(git rev-parse --verify HEAD)
 docker build -t $image:alpine-$headsha .
 docker push $image:alpine-$headsha
 
-echo "Pushing as latest tag..."
-docker tag $image:alpine-$headsha $image:latest
-docker push $image:latest
-
+if [[ "$1" == "-p" ]]; then
+    echo "Pushing as latest tag..."
+    docker tag $image:alpine-$headsha $image:latest
+    docker push $image:latest
+fi
