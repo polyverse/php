@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cd ..
-./build.sh
+./build.sh -p
 cd ..
 
 ROOT=$PWD

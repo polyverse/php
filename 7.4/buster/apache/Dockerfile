@@ -1,9 +1,9 @@
+FROM polyverse/php-polyscripting-builder:47e29f9bdd6a0d87fc59659439c3c9a8489a4a9d as builder
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
 #
 # PLEASE DO NOT EDIT IT DIRECTLY.
 #
-FROM polyverse/polyscript-deps:29fc2e4b99953abeb3f5653481d19c818684d393 AS polyscript-deps
 
 FROM debian:buster-slim
 
@@ -168,13 +168,13 @@ RUN set -eux; \
 
 COPY docker-php-source /usr/local/bin/
 
-#POLYSCRIPTING ADDED
-ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
-ENV PHP_SRC_PATH "/usr/src/php"
-WORKDIR $POLYSCRIPT_PATH
-COPY --from=polyscript-deps /tok-php-transformer/tok-php-transformer.php /tok-php-transformer/snip-transform.php ./
-COPY --from=polyscript-deps /scripts/ .
-COPY --from=polyscript-deps /apache/ .
+#add polyscripting
+ ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
+ ENV PHP_SRC_PATH "/usr/src/php"
+ WORKDIR $POLYSCRIPT_PATH
+ COPY --from=builder /polyscripting/ ./
+
+
 
 RUN set -eux; \
 	\

@@ -1,3 +1,4 @@
+FROM polyverse/php-polyscripting-builder:47e29f9bdd6a0d87fc59659439c3c9a8489a4a9d as builder
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
 #
@@ -97,6 +98,13 @@ RUN set -eux; \
 	apk del --no-network .fetch-deps
 
 COPY docker-php-source /usr/local/bin/
+
+#add polyscripting
+ ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
+ ENV PHP_SRC_PATH "/usr/src/php"
+ WORKDIR $POLYSCRIPT_PATH
+ COPY --from=builder /polyscripting/ ./
+
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
