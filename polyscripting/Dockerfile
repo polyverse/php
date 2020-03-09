@@ -1,7 +1,7 @@
 FROM golang
 
-COPY ./src/tokenizer/ /polyscripting/
-COPY ./scripts /polyscripting/
+COPY src/tokenizer /polyscripting/
+COPY scripts /polyscripting/
 
 COPY ./src/scrambler/* /go/src/github.com/polyverse/scrambler/
 

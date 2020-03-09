@@ -100,11 +100,11 @@ RUN set -eux; \
 COPY docker-php-source /usr/local/bin/
 
 #add polyscripting
- ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
- ENV PHP_SRC_PATH "/usr/src/php"
- WORKDIR $POLYSCRIPT_PATH
- COPY --from=builder /polyscripting/ ./
-
+ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
+ENV PHP_SRC_PATH "/usr/src/php"
+WORKDIR $POLYSCRIPT_PATH
+COPY --from=builder /polyscripting/ ./
+RUN  /usr/local/bin/polyscripting/polyscript-enable;
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
@@ -167,17 +167,13 @@ RUN set -eux; \
 		\
 		${PHP_EXTRA_CONFIGURE_ARGS:-} \
 	; \
-	make -j "$(nproc)"; \
-	find -type f -name '*.a' -delete; \
 	make install; \
 	find /usr/local/bin /usr/local/sbin -type f -perm +0111 -exec strip --strip-all '{}' + || true; \
-	make clean; \
 	\
 # https://github.com/docker-library/php/issues/692 (copy default example "php.ini" files somewhere easily discoverable)
 	cp -v php.ini-* "$PHP_INI_DIR/"; \
 	\
 	cd /; \
-	docker-php-source delete; \
 	\
 	runDeps="$( \
 		scanelf --needed --nobanner --format '%n#p' --recursive /usr/local \
