@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 image="polyverse/ps-php7.2-fpm"
 
