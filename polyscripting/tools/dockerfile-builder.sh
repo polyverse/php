@@ -20,7 +20,6 @@ ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
 ENV PHP_SRC_PATH "/usr/src/php"
 WORKDIR \$POLYSCRIPT_PATH
 COPY --from=builder /polyscripting/ ./
-RUN \${POLYSCRIPT_PATH}/polyscript-enable;
 Message
 )
 
@@ -41,11 +40,12 @@ echo "FROM polyverse/php-polyscripting-builder:$headsha as builder" > temp.txt
 sed "/${flag}/q" $dockerfile >> temp.txt
 echo "$enable" >> temp.txt
 grep -v -e 'make -j "$(nproc)";' \
-        -e 'make install;' \
         -e 'make clean;' \
         -e 'docker-php-source delete;' \
         -e 'find -type f -name' \
-        <(awk "f;/${flag}/{f=1}" $dockerfile) >> temp.txt
+        <(sed -e 's#make install;#\${POLYSCRIPT_PATH}/enable-polyscript#' \
+        <(awk "f;/${flag}/{f=1}" $dockerfile)) >> temp.txt
 
 mv temp.txt $dockerfile
+
 

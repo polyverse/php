@@ -1,4 +1,4 @@
-FROM polyverse/php-polyscripting-builder:47e29f9bdd6a0d87fc59659439c3c9a8489a4a9d as builder
+FROM polyverse/php-polyscripting-builder:latest as builder
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
 #
