@@ -169,10 +169,10 @@ RUN set -eux; \
 COPY docker-php-source /usr/local/bin/
 
 #add polyscripting
- ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
- ENV PHP_SRC_PATH "/usr/src/php"
- WORKDIR $POLYSCRIPT_PATH
- COPY --from=builder /polyscripting/ ./
+ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
+ENV PHP_SRC_PATH "/usr/src/php"
+WORKDIR $POLYSCRIPT_PATH
+COPY --from=builder /polyscripting/ ./
 
 
 

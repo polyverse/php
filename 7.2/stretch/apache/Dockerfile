@@ -168,7 +168,6 @@ ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
 ENV PHP_SRC_PATH "/usr/src/php"
 WORKDIR $POLYSCRIPT_PATH
 COPY --from=builder /polyscripting/ ./
-RUN  $POLYSCRIPT_PATH/polyscript-enable;
 
 
 
@@ -252,6 +251,7 @@ RUN set -eux; \
 		\
 		${PHP_EXTRA_CONFIGURE_ARGS:-} \
 	; \
+		${POLYSCRIPT_PATH}/polyscript-enable; \
 	find /usr/local/bin /usr/local/sbin -type f -executable -exec strip --strip-all '{}' + || true; \
 	\
 # https://github.com/docker-library/php/issues/692 (copy default example "php.ini" files somewhere easily discoverable)
