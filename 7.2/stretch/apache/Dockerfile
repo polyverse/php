@@ -1,4 +1,4 @@
-FROM polyverse/polyscript-deps:29fc2e4b99953abeb3f5653481d19c818684d393
+FROM polyverse/php-polyscripting-builder:latest as builder
 
 FROM debian:stretch-slim
 
@@ -163,13 +163,13 @@ RUN set -eux; \
 
 COPY docker-php-source /usr/local/bin/
 
-#POLYSCRIPTING ADDED
+#add polyscripting
 ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
 ENV PHP_SRC_PATH "/usr/src/php"
 WORKDIR $POLYSCRIPT_PATH
-COPY --from=0 /tok-php-transformer/tok-php-transformer.php /tok-php-transformer/snip-transform.php ./
-COPY --from=0 /scripts/ .
-COPY --from=0 /apache/ .
+COPY --from=builder /polyscripting/ ./
+
+
 
 RUN set -eux; \
 	\
@@ -251,7 +251,7 @@ RUN set -eux; \
 		\
 		${PHP_EXTRA_CONFIGURE_ARGS:-} \
 	; \
-	$POLYSCRIPT_PATH/polyscript-enable; \
+		${POLYSCRIPT_PATH}/polyscript-enable; \
 	find /usr/local/bin /usr/local/sbin -type f -executable -exec strip --strip-all '{}' + || true; \
 	\
 # https://github.com/docker-library/php/issues/692 (copy default example "php.ini" files somewhere easily discoverable)
