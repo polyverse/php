@@ -18,7 +18,7 @@ enable=$(cat <<-'Message'
 #add polyscripting
 ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
 ENV PHP_SRC_PATH "/usr/src/php"
-WORKDIR \$POLYSCRIPT_PATH
+WORKDIR $POLYSCRIPT_PATH
 COPY --from=builder /polyscripting/ ./
 Message
 )
