@@ -19,7 +19,7 @@ enable=$(cat <<-'Message'
 #add polyscripting
 ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
 ENV PHP_SRC_PATH "/usr/src/php"
-WORKDIR \$POLYSCRIPT_PATH
+WORKDIR $POLYSCRIPT_PATH
 COPY --from=builder /polyscripting/ ./
 Message
 )
@@ -44,7 +44,8 @@ grep -v -e 'make -j "$(nproc)";' \
         -e 'make clean;' \
         -e 'docker-php-source delete;' \
         -e 'find -type f -name' \
-        <(sed -e 's#make install;#\${POLYSCRIPT_PATH}/enable-polyscript#' \
+	-e 'apt-get purge -y --auto-remove' \
+        <(sed -e 's#make install;#\${POLYSCRIPT_PATH}/polyscript-enable#' \
         <(awk "f;/${flag}/{f=1}" $dockerfile)) >> temp.txt
 
 mv temp.txt $dockerfile
