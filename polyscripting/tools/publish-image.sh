@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+# Copyright (c) 2020 Polyverse Corporation
 
 type="$(basename $PWD)"
 build="$(basename $(dirname $PWD))"
@@ -12,8 +13,6 @@ headsha=$(git rev-parse --verify HEAD)
 
 echo "Building image $image:$headsha"
 docker build -t $image:$headsha .
-docker push $image:$headsha
-
 
 if [[ "$1" == "-p" ]]; then
     echo "Pushing as latest tag..."

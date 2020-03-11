@@ -1,3 +1,4 @@
+# Copyright (c) 2020 Polyverse Corporation
 FROM golang
 
 COPY src/tokenizer /polyscripting/

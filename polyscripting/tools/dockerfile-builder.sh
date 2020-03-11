@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (c) 2020 Polyverse Corporation
 
 headsha=$(git rev-parse --verify HEAD)
 
@@ -37,7 +38,7 @@ echo "No polyscritping builder found, adding polyscripting to Dockerfile"
 
 flag="COPY docker-php-source \/usr\/local\/bin\/"
 echo "FROM polyverse/php-polyscripting-builder:$headsha as builder" > temp.txt
-sed "/${flag}/q" $dockerfile >> temp.txt
+sed -e "/${flag}/q" -e 's#ENV PHPIZE_DEPS#ENV PHPIZE_DEPS bison#' $dockerfile >> temp.txt
 echo "$enable" >> temp.txt
 grep -v -e 'make -j "$(nproc)";' \
         -e 'make clean;' \

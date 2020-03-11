@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (c) 2020 Polyverse Corporation
 
 sed -i '/^PHP_EXTRA_VERSION/s/"$/-poly"/' configure configure.ac Makefile
 sed -i '/PHP_EXTRA_VERSION/s/""/"-poly"/' main/php_version.h

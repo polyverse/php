@@ -1,4 +1,5 @@
 #!/bin/sh
+# Copyright (c) 2020 Polyverse Corporation
 
 image="polyverse/ps-php7.2-fpm"
 

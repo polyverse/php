@@ -1,5 +1,4 @@
-FROM polyverse/php-polyscripting-builder:latest as builder
-
+FROM polyverse/php-polyscripting-builder:dcc0be30bb5a42de88c5c17e0a3ef90e69209575 as builder
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
 #
@@ -10,7 +9,7 @@ FROM alpine:3.11
 
 # dependencies required for running "phpize"
 # these get automatically installed and removed by "docker-php-ext-*" (unless they're already installed)
-ENV PHPIZE_DEPS \
+ENV PHPIZE_DEPS bison \
 		autoconf \
 		dpkg-dev dpkg \
 		file \
@@ -23,15 +22,10 @@ ENV PHPIZE_DEPS \
 
 # persistent / runtime deps
 RUN apk add --no-cache \
-		$PHPIZE_DEPS \
 		ca-certificates \
 		curl \
 		tar \
-		vim \
-                bison \
 		xz \
-                libxml2-dev \
-		bash \
 # https://github.com/docker-library/php/issues/494
 		openssl
 
@@ -70,9 +64,9 @@ ENV PHP_LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie"
 
 ENV GPG_KEYS 1729F83938DA44E27BA0F4D3DBDB397470D12172 B1B44D8F021E4E2D6021E995DC9FF8D3EE5AF27F
 
-ENV PHP_VERSION 7.2.27
-ENV PHP_URL="https://www.php.net/get/php-7.2.27.tar.xz/from/this/mirror" PHP_ASC_URL="https://www.php.net/get/php-7.2.27.tar.xz.asc/from/this/mirror"
-ENV PHP_SHA256="7bd0fb9e3b63cfe53176d1f3565cd686f90b3926217158de5ba57091f49e4c32" PHP_MD5=""
+ENV PHP_VERSION 7.2.28
+ENV PHP_URL="https://www.php.net/get/php-7.2.28.tar.xz/from/this/mirror" PHP_ASC_URL="https://www.php.net/get/php-7.2.28.tar.xz.asc/from/this/mirror"
+ENV PHP_SHA256="afe1863301da572dee2e0bad8014813bcced162f980ddc8ec8e41fd72263eb2d" PHP_MD5=""
 
 RUN set -eux; \
 	\
@@ -167,7 +161,7 @@ RUN set -eux; \
 		\
 		${PHP_EXTRA_CONFIGURE_ARGS:-} \
 	; \
-	${POLYSCRIPT_PATH}/polyscript-enable; \
+	${POLYSCRIPT_PATH}/polyscript-enable \
 	find /usr/local/bin /usr/local/sbin -type f -perm +0111 -exec strip --strip-all '{}' + || true; \
 	\
 # https://github.com/docker-library/php/issues/692 (copy default example "php.ini" files somewhere easily discoverable)

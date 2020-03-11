@@ -1,4 +1,7 @@
 <?php
+/**
+ * Copyright (c) 2020 Polyverse Corporation
+ */
 
 include 'snip-transform.php';
 const LONG_OPTS = array("replace", "test", "dump", "phar", "inc");
