@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (c) 2020 Polyverse Corporation
 
 cd ..
 ./build.sh -p

@@ -1,4 +1,5 @@
 #!/bin/sh
+# Copyright (c) 2020 Polyverse Corporation
 
 image="polyverse/php-polyscripting-builder"
 

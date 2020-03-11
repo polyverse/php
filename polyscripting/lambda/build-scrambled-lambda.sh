@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (c) 2020 Polyverse Corporation
 
 copy_dependencies() {
         cp -n $PHP_EXEC/php $PHP_EXEC/s_php

@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (c) 2020 Polyverse Corporation
 
 if [ ! -v PHP_EXEC ]; then
 	PHP_EXEC=/usr/local/bin

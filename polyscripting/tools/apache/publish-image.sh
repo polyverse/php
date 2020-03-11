@@ -1,4 +1,5 @@
 #!/bin/sh
+# Copyright (c) 2020 Polyverse Corporation
 
 image="polyverse/ps-${PHP_VERSION}-${BUILD_TYPE}"
 

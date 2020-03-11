@@ -1,4 +1,5 @@
 #!/bin/sh
+# Copyright (c) 2020 Polyverse Corporation
 
 type="$(basename $PWD)"
 build="$(basename $(dirname $PWD))"
