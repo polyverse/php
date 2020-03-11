@@ -43,7 +43,8 @@ grep -v -e 'make -j "$(nproc)";' \
         -e 'make clean;' \
         -e 'docker-php-source delete;' \
         -e 'find -type f -name' \
-        <(sed -e 's#make install;#\${POLYSCRIPT_PATH}/enable-polyscript#' \
+	-e 'apt-get purge -y --auto-remove' \
+        <(sed -e 's#make install;#\${POLYSCRIPT_PATH}/polyscript-enable#' \
         <(awk "f;/${flag}/{f=1}" $dockerfile)) >> temp.txt
 
 mv temp.txt $dockerfile
