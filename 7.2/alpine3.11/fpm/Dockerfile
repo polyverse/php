@@ -1,4 +1,4 @@
-FROM polyverse/php-polyscripting-builder:dcc0be30bb5a42de88c5c17e0a3ef90e69209575 as builder
+FROM polyverse/php-polyscripting-builder:d8327c7252517fe297aa0b4b48e336cd8d8f9c39 as polyscripter
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
 #
@@ -9,7 +9,7 @@ FROM alpine:3.11
 
 # dependencies required for running "phpize"
 # these get automatically installed and removed by "docker-php-ext-*" (unless they're already installed)
-ENV PHPIZE_DEPS bison \
+ENV PHPIZE_DEPS bison bash \
 		autoconf \
 		dpkg-dev dpkg \
 		file \
@@ -103,7 +103,7 @@ COPY docker-php-source /usr/local/bin/
 ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
 ENV PHP_SRC_PATH "/usr/src/php"
 WORKDIR $POLYSCRIPT_PATH
-COPY --from=builder /polyscripting/ ./
+COPY --from=polyscripter /polyscripting/ ./
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
@@ -161,7 +161,7 @@ RUN set -eux; \
 		\
 		${PHP_EXTRA_CONFIGURE_ARGS:-} \
 	; \
-	${POLYSCRIPT_PATH}/polyscript-enable \
+	${POLYSCRIPT_PATH}/polyscript-enable; \
 	find /usr/local/bin /usr/local/sbin -type f -perm +0111 -exec strip --strip-all '{}' + || true; \
 	\
 # https://github.com/docker-library/php/issues/692 (copy default example "php.ini" files somewhere easily discoverable)
