@@ -1,7 +1,7 @@
 # Copyright (c) 2020 Polyverse Corporation
 FROM golang
 
-COPY src/tokenizer /polyscripting/
+COPY src/transformer /polyscripting/
 COPY scripts /polyscripting/
 
 COPY ./src/scrambler/* /go/src/github.com/polyverse/scrambler/
