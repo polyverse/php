@@ -3,6 +3,7 @@ FROM golang
 
 COPY src/tokenizer /polyscripting/
 COPY scripts /polyscripting/
+COPY /lambda /lambda
 
 COPY ./src/scrambler/* /go/src/github.com/polyverse/scrambler/
 

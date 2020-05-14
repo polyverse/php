@@ -20,7 +20,7 @@ enable=$(cat <<-'Message'
 ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
 ENV PHP_SRC_PATH "/usr/src/php"
 WORKDIR $POLYSCRIPT_PATH
-COPY --from=builder /polyscripting/ ./
+COPY --from=polyscripter /polyscripting/ ./
 Message
 )
 
@@ -37,15 +37,15 @@ fi
 echo "No polyscritping builder found, adding polyscripting to Dockerfile"
 
 flag="COPY docker-php-source \/usr\/local\/bin\/"
-echo "FROM polyverse/php-polyscripting-builder:$headsha as builder" > temp.txt
-sed -e "/${flag}/q" -e 's#ENV PHPIZE_DEPS#ENV PHPIZE_DEPS bison#' $dockerfile >> temp.txt
+echo "FROM polyverse/php-polyscripting-builder:$headsha as polyscripter" > temp.txt
+sed -e "/${flag}/q" -e 's#ENV PHPIZE_DEPS#ENV PHPIZE_DEPS bison bash#' $dockerfile >> temp.txt
 echo "$enable" >> temp.txt
 grep -v -e 'make -j "$(nproc)";' \
         -e 'make clean;' \
         -e 'docker-php-source delete;' \
         -e 'find -type f -name' \
 	-e 'apt-get purge -y --auto-remove' \
-        <(sed -e 's#make install;#\${POLYSCRIPT_PATH}/polyscript-enable#' \
+        <(sed -e 's#make install;#\${POLYSCRIPT_PATH}/polyscript-enable;#' \
         <(awk "f;/${flag}/{f=1}" $dockerfile)) >> temp.txt
 
 mv temp.txt $dockerfile
