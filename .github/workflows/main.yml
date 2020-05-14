@@ -9,6 +9,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Display the path
-        run: echo $PWD
+        run: ./publish-all.sh
         working-directory: ./polyscripting/tools
         shell: bash
