@@ -11,5 +11,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Publish All
-        run: ./polyscript-publish-all.sh
+        run: ./publish-all.sh
         shell: bash
+        working-directory: ./polyscripting/tools/
