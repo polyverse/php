@@ -1,4 +1,4 @@
-FROM polyverse/php-polyscripting-builder:d8327c7252517fe297aa0b4b48e336cd8d8f9c39 as polyscripter
+FROM polyverse/php-polyscripting-builder:latest as polyscripter
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
 #
@@ -55,18 +55,17 @@ ENV PHP_EXTRA_CONFIGURE_ARGS --enable-fpm --with-fpm-user=www-data --with-fpm-gr
 # Make PHP's main executable position-independent (improves ASLR security mechanism, and has no performance impact on x86_64)
 # Enable optimization (-O2)
 # Enable linker optimization (this sorts the hash buckets to improve cache locality, and is non-default)
-# Adds GNU HASH segments to generated executables (this is used if present, and is much faster than sysv hash; in this configuration, sysv hash is also generated)
 # https://github.com/docker-library/php/issues/272
 # -D_LARGEFILE_SOURCE and -D_FILE_OFFSET_BITS=64 (https://www.php.net/manual/en/intro.filesystem.php)
 ENV PHP_CFLAGS="-fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
 ENV PHP_CPPFLAGS="$PHP_CFLAGS"
-ENV PHP_LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie"
+ENV PHP_LDFLAGS="-Wl,-O1 -pie"
 
 ENV GPG_KEYS 1729F83938DA44E27BA0F4D3DBDB397470D12172 B1B44D8F021E4E2D6021E995DC9FF8D3EE5AF27F
 
-ENV PHP_VERSION 7.2.28
-ENV PHP_URL="https://www.php.net/get/php-7.2.28.tar.xz/from/this/mirror" PHP_ASC_URL="https://www.php.net/get/php-7.2.28.tar.xz.asc/from/this/mirror"
-ENV PHP_SHA256="afe1863301da572dee2e0bad8014813bcced162f980ddc8ec8e41fd72263eb2d" PHP_MD5=""
+ENV PHP_VERSION 7.2.30
+ENV PHP_URL="https://www.php.net/distributions/php-7.2.30.tar.xz" PHP_ASC_URL="https://www.php.net/distributions/php-7.2.30.tar.xz.asc"
+ENV PHP_SHA256="aa93df27b58a45d6c9800ac813245dfdca03490a918ebe515b3a70189b1bf8c3" PHP_MD5=""
 
 RUN set -eux; \
 	\
@@ -130,7 +129,7 @@ RUN set -eux; \
 		--with-config-file-path="$PHP_INI_DIR" \
 		--with-config-file-scan-dir="$PHP_INI_DIR/conf.d" \
 		\
-# make sure invalid --configure-flags are fatal errors intead of just warnings
+# make sure invalid --configure-flags are fatal errors instead of just warnings
 		--enable-option-checking=fatal \
 		\
 # https://github.com/docker-library/php/issues/439

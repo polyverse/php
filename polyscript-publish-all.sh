@@ -1,11 +1,11 @@
 #!/bin/bash
 # Copyright (c) 2020 Polyverse Corporation
 set -ex
-cd ..
-#./build.sh -p
-cd ..
-
 ROOT=$PWD
+cd ./polyscripting
+./build.sh -p
+cd $ROOT
+
 FILES=$(find . -path ./polyscripting -prune -o -type f -name 'publish-image.sh' -print | sed -E 's|/[^/]+$||' |uniq)
 
 echo $FILES
