@@ -1,8 +1,8 @@
 #!/bin/bash
 # Copyright (c) 2020 Polyverse Corporation
-
+set -ex
 cd ..
-./build.sh -p
+#./build.sh -p
 cd ..
 
 ROOT=$PWD
@@ -13,6 +13,7 @@ echo "Building and pushing all polyscripted php images tagged with current gitsh
 for d in $FILES; do
 	cd $d
 	echo "building and publishing $d"
-	./publish-image.sh -p 
+	./publish-image.sh -p > /dev/null  
 	cd $ROOT
+	echo $PWD
 done
