@@ -13,7 +13,7 @@ echo "Building and pushing all polyscripted php images tagged with current gitsh
 for d in $FILES; do
 	cd $d
 	echo "building and publishing $d"
-	./publish-image.sh -p > /dev/null  
+	./publish-image.sh -p 
 	cd $ROOT
 	echo $PWD
 done
