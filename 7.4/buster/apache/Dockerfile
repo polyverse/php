@@ -236,6 +236,8 @@ RUN set -eux; \
 		--with-libedit \
 		--with-openssl \
 		--with-zlib \
+# enable internationalization
+		--enable-intl \
 		\
 # in PHP 7.4+, the pecl/pear installers are officially deprecated (requiring an explicit "--with-pear") and will be removed in PHP 8+; see also https://github.com/docker-library/php/issues/846#issuecomment-505638494
 		--with-pear \
