@@ -1,3 +1,4 @@
+FROM polyverse/php-polyscripting-builder:3c6b6ea8c7e2cbb7a04cdff71a65186a28d1c66f as polyscripter
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
 #
@@ -8,7 +9,7 @@ FROM alpine:3.11
 
 # dependencies required for running "phpize"
 # these get automatically installed and removed by "docker-php-ext-*" (unless they're already installed)
-ENV PHPIZE_DEPS \
+ENV PHPIZE_DEPS bison bash \
 		autoconf \
 		dpkg-dev dpkg \
 		file \
@@ -98,6 +99,12 @@ RUN set -eux; \
 
 COPY docker-php-source /usr/local/bin/
 
+#add polyscripting
+ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
+ENV PHP_SRC_PATH "/usr/src/php"
+WORKDIR $POLYSCRIPT_PATH
+COPY --from=polyscripter /polyscripting/ ./
+
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
 		$PHPIZE_DEPS \
@@ -159,17 +166,13 @@ RUN set -eux; \
 		\
 		${PHP_EXTRA_CONFIGURE_ARGS:-} \
 	; \
-	make -j "$(nproc)"; \
-	find -type f -name '*.a' -delete; \
-	make install; \
+	${POLYSCRIPT_PATH}/polyscript-enable; \
 	find /usr/local/bin /usr/local/sbin -type f -perm +0111 -exec strip --strip-all '{}' + || true; \
-	make clean; \
 	\
 # https://github.com/docker-library/php/issues/692 (copy default example "php.ini" files somewhere easily discoverable)
 	cp -v php.ini-* "$PHP_INI_DIR/"; \
 	\
 	cd /; \
-	docker-php-source delete; \
 	\
 	runDeps="$( \
 		scanelf --needed --nobanner --format '%n#p' --recursive /usr/local \
