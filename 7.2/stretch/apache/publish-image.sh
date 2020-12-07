@@ -18,4 +18,5 @@ if [[ "$1" == "-p" ]]; then
     echo "Pushing as latest tag..."
     docker tag $image:$headsha $image:latest
     docker push $image:latest
+    docker push $image:$headsha
 fi

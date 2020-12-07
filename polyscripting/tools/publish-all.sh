@@ -1,12 +1,12 @@
 #!/bin/bash
 # Copyright (c) 2020 Polyverse Corporation
-
+set -ex
 cd ..
-./build.sh -p
+#./build.sh -p
 cd ..
 
 ROOT=$PWD
-FILES=$(find . -name polyscripting -prune -o -type f -name '*publish-image.sh*' | sed -E 's|/[^/]+$||' |uniq)
+FILES=$(find . -path ./polyscripting -prune -o -type f -name 'publish-image.sh' -print | sed -E 's|/[^/]+$||' |uniq)
 
 echo $FILES
 echo "Building and pushing all polyscripted php images tagged with current gitsha."
@@ -15,4 +15,5 @@ for d in $FILES; do
 	echo "building and publishing $d"
 	./publish-image.sh -p 
 	cd $ROOT
+	echo $PWD
 done

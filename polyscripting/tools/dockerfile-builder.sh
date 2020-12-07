@@ -11,8 +11,8 @@ if [[ ! $(basename $1) == "Dockerfile" ]]; then
     exit 1
 fi
 
-line="FROM polyverse/php-polyscripting-builder:$headsha as builder"
-pattern="FROM polyverse\/php-polyscripting-builder:$headsha as builder"
+line="FROM polyverse/php-polyscripting-builder:latest as builder"
+pattern="FROM polyverse\/php-polyscripting-builder:latest as builder"
 
 enable=$(cat <<-'Message'
 
