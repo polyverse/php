@@ -23,7 +23,6 @@ var KeywordsRegex = regexp.MustCompile( //REGEX found as user @martindilling com
 		"(f(inal(ly)?|or(each)?|unction))|" +
 		"(g(lobal|oto))|" +
 		"(i(f|mplements|n(clude(_once)?|st(anceof|eadof)|terface)|sset))|" +
-		"(n(amespace|ew))|" +
 		"((x)?or)|" +
 		"(p(r(i(nt|vate)|otected)|ublic))|" +
 		"(re(quire(_once)?|turn))|" +
@@ -31,6 +30,17 @@ var KeywordsRegex = regexp.MustCompile( //REGEX found as user @martindilling com
 		"(t(hrow|r(ait|y)))|(u(nset|se))|" +
 		"(break|list|(x)?or|var|while)|" +
 		"(string|object|list|int(eger)?|real|float|[^_]AND|[^(R|_|F)(X)?)](X)?OR))[^a-zA-Z0-9]")
+
+		// Disabling namespace due to this PHP8 construct:
+		// <ST_IN_SCRIPTING>"namespace"("\\"{LABEL})+ {
+		//    RETURN_TOKEN_WITH_STR(T_NAME_RELATIVE, sizeof("namespace\\") - 1);
+		// }
+		// Which is due to https://wiki.php.net/rfc/namespaced_names_as_token
+		//
+		//When solution is found (or for PHP 7.x), uncomment and add this line back in the keyword cascade above:
+		//
+		//"(n(amespace|ew))|" +
+
 
 
 
