@@ -1,3 +1,5 @@
+FROM polyverse/php-polyscripting-builder:latest as builder
+
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "apply-templates.sh"
 #
@@ -26,6 +28,9 @@ ENV PHPIZE_DEPS \
 		libc-dev \
 		make \
 		pkg-config \
+		vim \
+		bison \
+		libxml2-dev \
 		re2c
 
 # persistent / runtime deps
@@ -107,7 +112,7 @@ RUN { \
 	&& a2enconf docker-php
 
 ENV PHP_EXTRA_BUILD_DEPS apache2-dev
-ENV PHP_EXTRA_CONFIGURE_ARGS --with-apxs2 --disable-cgi
+ENV PHP_EXTRA_CONFIGURE_ARGS --with-apxs2 --disable-cgi PHP_EXTRA_VERSION="-polyscripted"
 
 # Apply stack smash protection to functions using local buffers and alloca()
 # Make PHP's main executable position-independent (improves ASLR security mechanism, and has no performance impact on x86_64)
@@ -121,7 +126,7 @@ ENV PHP_LDFLAGS="-Wl,-O1 -pie"
 
 ENV GPG_KEYS 1729F83938DA44E27BA0F4D3DBDB397470D12172 BFDDD28642824F8118EF77909B67A5C12229118F
 
-ENV PHP_VERSION 8.0.0
+ENV PHP_VERSION 8.0.0-polyscripted
 ENV PHP_URL="https://www.php.net/distributions/php-8.0.0.tar.xz" PHP_ASC_URL="https://www.php.net/distributions/php-8.0.0.tar.xz.asc"
 ENV PHP_SHA256="b5278b3eef584f0c075d15666da4e952fa3859ee509d6b0cc2ed13df13f65ebb"
 
@@ -157,6 +162,12 @@ RUN set -eux; \
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
 
 COPY docker-php-source /usr/local/bin/
+
+#add polyscripting
+ENV POLYSCRIPT_PATH "/usr/local/bin/polyscripting"
+ENV PHP_SRC_PATH "/usr/src/php"
+WORKDIR $POLYSCRIPT_PATH
+COPY --from=builder /polyscripting/ ./
 
 RUN set -eux; \
 	\
@@ -225,6 +236,7 @@ RUN set -eux; \
 # in PHP 7.4+, the pecl/pear installers are officially deprecated (requiring an explicit "--with-pear")
 		--with-pear \
 		\
+		PHP_EXTRA_VERSION="-polyscripted" \
 # bundled pcre does not support JIT on s390x
 # https://manpages.debian.org/stretch/libpcre3-dev/pcrejit.3.en.html#AVAILABILITY_OF_JIT_SUPPORT
 		$(test "$gnuArch" = 's390x-linux-gnu' && echo '--without-pcre-jit') \
@@ -232,17 +244,13 @@ RUN set -eux; \
 		\
 		${PHP_EXTRA_CONFIGURE_ARGS:-} \
 	; \
-	make -j "$(nproc)"; \
-	find -type f -name '*.a' -delete; \
-	make install; \
+	$POLYSCRIPT_PATH/polyscript-enable; \
 	find /usr/local/bin /usr/local/sbin -type f -executable -exec strip --strip-all '{}' + || true; \
-	make clean; \
 	\
 # https://github.com/docker-library/php/issues/692 (copy default example "php.ini" files somewhere easily discoverable)
 	cp -v php.ini-* "$PHP_INI_DIR/"; \
 	\
 	cd /; \
-	docker-php-source delete; \
 	\
 # reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
 	apt-mark auto '.*' > /dev/null; \
@@ -255,7 +263,6 @@ RUN set -eux; \
 		| sort -u \
 		| xargs -r apt-mark manual \
 	; \
-	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
 	\
 # update pecl channel definitions https://github.com/docker-library/php/issues/443
 	pecl update-channels; \
