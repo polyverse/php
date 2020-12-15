@@ -114,6 +114,9 @@ function get_ext($opts)
 
 function polyscriptify($file_name, $fileOut)
 {
+    // ignore symlinks
+    if (is_link($file_name)) { return; }
+
     global $is_test;
     $file_str = file_get_contents($file_name);
     $fp = fopen($fileOut, 'w');
