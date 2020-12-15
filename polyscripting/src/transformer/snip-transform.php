@@ -13,8 +13,7 @@ const IGNORE = array(T_STRING, T_INLINE_HTML, T_CONSTANT_ENCAPSED_STRING, T_STAR
 const DICTIONARY = "/scrambled.json";
 const POLY_PATH = "POLYSCRIPT_PATH";
 
-
-$GLOBALS['keys_ps_map'];
+$GLOBALS["keys_ps_map"] = [];
 
 class String_State
 {
@@ -24,11 +23,9 @@ class String_State
 
 $str_state = new String_State();
 
-
-
 function poly_snip($snip, $is_test)
 {
-    getDir(); init_str_count();
+    get_dir(); init_str_count();
 
     global $tokens;
 
@@ -162,14 +159,13 @@ function stateFlip()
         $str_state->in_str = !$str_state->in_str;
 }
 
-
 function init_str_count() {
     global $str_state;
     $str_state->in_str = false;
     $str_state->curl_depth = 0;
 }
 
-function getDir()
+function get_dir()
 {
     global $keys_ps_map;
     $parent = getenv(POLY_PATH);

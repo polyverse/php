@@ -61,17 +61,17 @@ function arg_parse($opts)
 {
     global $dump, $root_path, $out, $replace, $is_snip;
 
-    if ($opts['s'] != NULL && $opts['p']!=NULL) {
+    if (array_key_exists("s", $opts) && array_key_exists("p", $opts)) {
         trigger_error("Cannot polyscript both path and snip.", E_USER_ERROR);
     }
 
-    if ($opts['s'] != NULL) {
+    if (array_key_exists("s", $opts)) {
         $is_snip = true;
         $out = $opts['s'];
         return;
     }
 
-    if ($opts['p']==NULL) {
+    if (!array_key_exists("p", $opts)) {
         trigger_error("Missing required argument: '-p'", E_USER_ERROR);
     }
 
