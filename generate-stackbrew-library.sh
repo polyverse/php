@@ -2,15 +2,16 @@
 set -Eeuo pipefail
 
 declare -A aliases=(
-	[7.4]='7 latest'
-	[7.5-rc]='rc'
+	[7.4]='7'
+	[8.0]='8 latest'
+	[8.1-rc]='rc'
 )
 
 defaultDebianSuite='buster'
 declare -A debianSuites=(
 	#[7.4-rc]='buster'
 )
-defaultAlpineVersion='3.11'
+defaultAlpineVersion='3.12'
 declare -A alpineVersions=(
 	# /usr/src/php/ext/openssl/openssl.c:551:12: error: static declaration of 'RSA_set0_key' follows non-static declaration
 	# https://github.com/docker-library/php/pull/702#issuecomment-413341743
@@ -20,11 +21,13 @@ declare -A alpineVersions=(
 self="$(basename "$BASH_SOURCE")"
 cd "$(dirname "$(readlink -f "$BASH_SOURCE")")"
 
-versions=( */ )
-versions=( "${versions[@]%/}" )
+if [ "$#" -eq 0 ]; then
+	versions="$(jq -r 'keys | map(@sh) | join(" ")' versions.json)"
+	eval "set -- $versions"
+fi
 
 # sort version numbers with highest first
-IFS=$'\n'; versions=( $(echo "${versions[*]}" | sort -rV) ); unset IFS
+IFS=$'\n'; set -- $(sort -rV <<<"$*"); unset IFS
 
 # get the most recent commit which modified any of "$@"
 fileCommit() {
@@ -79,62 +82,63 @@ join() {
 	echo "${out#$sep}"
 }
 
-for version in "${versions[@]}"; do
+for version; do
+	export version
+	variants="$(jq -r '.[env.version].variants | map(@sh) | join(" ")' versions.json)"
+	eval "variants=( $variants )"
 
 	versionAliases=(
 		$version
 		${aliases[$version]:-}
 	)
 
-	# order here controls the order of the library/ file
-	for suite in \
-		buster stretch \
-		alpine{3.11,3.10} \
-	; do
-		for variant in \
-			cli \
-			apache \
-			fpm \
-			zts \
-		; do
-			dir="$version/$suite/$variant"
-			[ -f "$dir/Dockerfile" ] || continue
+	for dir in "${variants[@]}"; do
+		suite="$(dirname "$dir")" # "buster", etc
+		variant="$(basename "$dir")" # "cli", etc
+		dir="$version/$dir"
+		[ -f "$dir/Dockerfile" ] || continue
 
-			commit="$(dirCommit "$dir")"
-			fullVersion="$(git show "$commit":"$dir/Dockerfile" | awk '$1 == "ENV" && $2 == "PHP_VERSION" { print $3; exit }')"
+		fullVersion="$(jq -r '.[env.version].version' versions.json)"
 
-			baseAliases=( $fullVersion "${versionAliases[@]}" )
-			variantAliases=( "${baseAliases[@]/%/-$variant}" )
-			variantAliases=( "${variantAliases[@]//latest-/}" )
+		baseAliases=( $fullVersion "${versionAliases[@]}" )
+		variantAliases=( "${baseAliases[@]/%/-$variant}" )
+		variantAliases=( "${variantAliases[@]//latest-/}" )
 
-			if [ "$variant" = 'cli' ]; then
-				variantAliases+=( "${baseAliases[@]}" )
-			fi
+		if [ "$variant" = 'cli' ]; then
+			variantAliases+=( "${baseAliases[@]}" )
+		fi
 
-			suiteVariantAliases=( "${variantAliases[@]/%/-$suite}" )
-			if [ "${suite#alpine}" = "${alpineVersions[$version]:-$defaultAlpineVersion}" ] ; then
-				variantAliases=( "${variantAliases[@]/%/-alpine}" )
-			elif [ "$suite" != "${debianSuites[$version]:-$defaultDebianSuite}" ]; then
-				variantAliases=()
-			fi
-			variantAliases=( "${suiteVariantAliases[@]}" ${variantAliases[@]+"${variantAliases[@]}"} )
-			variantAliases=( "${variantAliases[@]//latest-/}" )
+		suiteVariantAliases=( "${variantAliases[@]/%/-$suite}" )
+		if [ "${suite#alpine}" = "${alpineVersions[$version]:-$defaultAlpineVersion}" ] ; then
+			variantAliases=( "${variantAliases[@]/%/-alpine}" )
+		elif [ "$suite" != "${debianSuites[$version]:-$defaultDebianSuite}" ]; then
+			variantAliases=()
+		fi
+		variantAliases=( "${suiteVariantAliases[@]}" ${variantAliases[@]+"${variantAliases[@]}"} )
+		variantAliases=( "${variantAliases[@]//latest-/}" )
 
-			variantParent="$(awk 'toupper($1) == "FROM" { print $2 }' "$dir/Dockerfile")"
-			variantArches="${parentRepoToArches[$variantParent]}"
+		variantParent="$(awk 'toupper($1) == "FROM" { print $2 }' "$dir/Dockerfile")"
+		variantArches="${parentRepoToArches[$variantParent]}"
 
-			# 7.2 no longer supports s390x
-			# #error "Not yet implemented"
-			# https://github.com/docker-library/php/pull/487#issue-254755661
-			variantArches="$(echo " $variantArches " | sed -r -e 's/ s390x//g')"
+		if [ "$version" = '7.2' ]; then
+			# PHP 7.2 doesn't compile on MIPS:
+			#   /usr/src/php/ext/pcre/pcrelib/sljit/sljitNativeMIPS_common.c:506:3: error: a label can only be part of a statement and a declaration is not a statement
+			#      sljit_sw fir;
+			#      ^~~~~~~~
+			# According to https://github.com/openwrt/packages/issues/5333 + https://github.com/openwrt/packages/pull/5335,
+			# https://github.com/svn2github/pcre/commit/e5045fd31a2e171dff305665e2b921d7c93427b8#diff-291428aa92cf90de0f2486f9c2829158
+			# *might* fix it, but it's likely not worth it just for PHP 7.2 on MIPS (since 7.3 and 7.4 work fine).
+			variantArches="$(echo " $variantArches " | sed -e 's/ mips64le / /g')"
+		fi
 
-			echo
-			cat <<-EOE
-				Tags: $(join ', ' "${variantAliases[@]}")
-				Architectures: $(join ', ' $variantArches)
-				GitCommit: $commit
-				Directory: $dir
-			EOE
-		done
+		commit="$(dirCommit "$dir")"
+
+		echo
+		cat <<-EOE
+			Tags: $(join ', ' "${variantAliases[@]}")
+			Architectures: $(join ', ' $variantArches)
+			GitCommit: $commit
+			Directory: $dir
+		EOE
 	done
 done
