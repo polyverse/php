@@ -32,7 +32,6 @@ var KeywordsRegex = regexp.MustCompile( //REGEX found as user @martindilling com
 		"(break|list|(x)?or|var|while)|" +
 		"(string|object|list|int(eger)?|real|float|[^_]AND|[^(R|_|F)(X)?)](X)?OR))[^a-zA-Z0-9]")
 
-
 var PolyWords = make(map[string]string)
 
 func AddToPolyWords(key string) bool {
@@ -71,7 +70,6 @@ func WriteLineToBuff(s []byte) {
 	Buffer.WriteString("\n")
 }
 
-
 func SerializeMap() {
 	encodeFile, err := os.Create(scrambledDictFile)
 
@@ -94,7 +92,7 @@ var CharMatches = []string{}
 
 var CharStrRegex = regexp.MustCompile("(\")[^\\w\"]{2,}[ \"]")
 
-var symbolChars = [...]string{")","(","-","~","^","&","@","!","|","+",":","=",",","%","]"}
+var symbolChars = [...]string{")", "(", "-", "~", "^", "&", "@", "!", "|", "+", ":", "=", ",", "%", "]"}
 
 func shuffle() []string {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
@@ -134,7 +132,7 @@ func InitChar() {
 func addCharMatches(matches []string, wrappers []string) {
 	for _, match := range matches {
 		for _, wrapper := range wrappers {
-			CharMatches = append(CharMatches, wrapper + match + wrapper)
+			CharMatches = append(CharMatches, wrapper+match+wrapper)
 		}
 	}
 }

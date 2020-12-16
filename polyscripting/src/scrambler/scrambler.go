@@ -58,7 +58,7 @@ func scanLines(fileIn string, flag []byte, scanNextLine bool) {
 				// append nextline to line
 				line = append(append(line, []byte("\n")...), nextline...)
 			}
-		} else if bytes.HasPrefix(line, flag) && CharStrRegex.Match(line){
+		} else if bytes.HasPrefix(line, flag) && CharStrRegex.Match(line) {
 			line = getCharStr(line)
 		}
 
@@ -87,7 +87,7 @@ func substituteWordsInString(line string) string {
 
 	for matchedRegex != "" {
 		index := KeywordsRegex.FindStringIndex(line)
-		suffix := string(line[index[1] - 1])
+		suffix := string(line[index[1]-1])
 		prefix := string(line[index[0]])
 
 		matchedRegex = strings.TrimSuffix(strings.TrimPrefix(matchedRegex, prefix), suffix)
@@ -120,7 +120,7 @@ func hasChar(line []byte) bool {
 }
 
 func getChar(line []byte) []byte {
-	GetScrambledWrapper := func (l string) string {
+	GetScrambledWrapper := func(l string) string {
 		r, _ := GetScrambled(l)
 		return r
 	}
@@ -133,12 +133,12 @@ func inMatchingQuotes(line []byte, operator QuotedStringOperator) []byte {
 	var doubleQuote byte = byte('"')
 	var singleQuote byte = byte('\'')
 
-	var inDoubleQuote=false
-	var inSingleQuote=false
+	var inDoubleQuote = false
+	var inSingleQuote = false
 
 	cache := bytes.NewBufferString("")
 
-	for i := 0;  i < len(line); i++ {
+	for i := 0; i < len(line); i++ {
 		if inSingleQuote && line[i] == singleQuote {
 			inSingleQuote = false
 			var substitution = operator(cache.String())
@@ -173,7 +173,7 @@ func getCharStr(line []byte) []byte {
 
 func replaceFunction(src []byte) []byte {
 	var replace string
-	for i := 0;  i < len(src); i++ {
+	for i := 0; i < len(src); i++ {
 		char, _ := GetScrambled(string(src[i]))
 		replace += char
 	}
