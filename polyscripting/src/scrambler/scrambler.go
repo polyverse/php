@@ -46,7 +46,6 @@ func scanLines(fileIn string, flag []byte, scanNextLine bool) {
 
 	for fileScanner.Scan() {
 		line := fileScanner.Bytes()
-		multiline := false
 
 		if bytes.HasPrefix(line, flag) && KeywordsRegex.Match(line) {
 			line = getWords(line)
@@ -57,7 +56,6 @@ func scanLines(fileIn string, flag []byte, scanNextLine bool) {
 				nextline = getWords(nextline)
 				// append nextline to line
 				line = append(append(line, []byte("\n")...), nextline...)
-				multiline = true
 			}
 		} else if bytes.HasPrefix(line, flag) && CharStrRegex.Match(line){
 			line = getCharStr(line)
