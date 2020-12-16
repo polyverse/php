@@ -13,7 +13,7 @@ else
 fi
 
 ./save-current-scramble.sh vanilla-save
-./php-scrambler
+./php-scrambler 
 
 OWD=$PWD
 

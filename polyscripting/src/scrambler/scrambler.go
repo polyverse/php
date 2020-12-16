@@ -7,6 +7,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -23,10 +24,18 @@ const source_env_var = "PHP_SRC_PATH"
 
 type QuotedStringOperator = func(string) string
 
+
 func init() {
+	dictFlag := flag.String("dict", "", "Prexisting JSON dictionary.")
 	checkEnvs()
-	InitChar()
+	flag.Parse()
+	dictFile := *dictFlag
 	KeywordsRegex.Longest()
+	if dictFile == "" {
+		InitChar()
+	} else {
+		InitPolyWords(dictFile)
+	}
 }
 
 func main() {
