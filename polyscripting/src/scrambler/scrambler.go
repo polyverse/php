@@ -47,7 +47,7 @@ func scanLines(fileIn string, flag []byte) {
 	for fileScanner.Scan() {
 		line := fileScanner.Bytes()
 
-		if IgnoreRegex.Match(line) { // Only process if not to be ignored
+		if ! IgnoreRegex.Match(line) { // Only process if not to be ignored
 			if bytes.HasPrefix(line, flag) && KeywordsRegex.Match(line) {
 				getWords(&line)
 			} else if bytes.HasPrefix(line, flag) && CharStrRegex.Match(line){
@@ -56,6 +56,8 @@ func scanLines(fileIn string, flag []byte) {
 			if CharRegex.Match(line) {
 				getChar(&line)
 			}
+		} else {
+			fmt.Printf("Ignoring Line: %s\n", &line);
 		}
 
 		WriteLineToBuff(line)
