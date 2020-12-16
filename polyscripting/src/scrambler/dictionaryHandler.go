@@ -14,17 +14,6 @@ import (
 
 const scrambledDictFile = "scrambled.json"
 
-var IgnoreRegex = regexp.MustCompile(
-			// Disabling namespace due to this PHP8 construct:
-		// <ST_IN_SCRIPTING>"namespace"("\\"{LABEL})+ {
-		//    RETURN_TOKEN_WITH_STR(T_NAME_RELATIVE, sizeof("namespace\\") - 1);
-		// }
-		// Which is due to https://wiki.php.net/rfc/namespaced_names_as_token
-		//
-		//When solution is found (or for PHP 7.x), uncomment and add this line back in the keyword cascade above:
-		//
-		"(namespace)")
-
 var KeywordsRegex = regexp.MustCompile( //REGEX found as user @martindilling comment on PHP documentation.
 	"[^a-zA-Z0-9]((a(bstract|nd|rray|s))|" +
 		"(b(inary|reak|ool(ean)?))|" +
@@ -34,7 +23,7 @@ var KeywordsRegex = regexp.MustCompile( //REGEX found as user @martindilling com
 		"(f(inal(ly)?|or(each)?|unction))|" +
 		"(g(lobal|oto))|" +
 		"(i(f|mplements|n(clude(_once)?|st(anceof|eadof)|terface)|sset))|" +
-		"(new)|" +
+		"(n(amespace|ew))|" +
 		"((x)?or)|" +
 		"(p(r(i(nt|vate)|otected)|ublic))|" +
 		"(re(quire(_once)?|turn))|" +
@@ -101,10 +90,9 @@ func SerializeMap() {
 
 }
 
-var CharRegex = regexp.MustCompile("(\"|')(\\(|\\))(\"|')|('~')|('-')|('\\^')|('&')|('\\+')|" +
-										"('\\|')|('@')|('!')|(':')|('=')|(\"]\")|(']')|(',')|('%')")
-var CharStrRegex = regexp.MustCompile("(\")[^\\w\"]{2,}[ \"]")
+var CharMatches = []string{}
 
+var CharStrRegex = regexp.MustCompile("(\")[^\\w\"]{2,}[ \"]")
 
 var symbolChars = [...]string{")","(","-","~","^","&","@","!","|","+",":","=",",","%","]"}
 
@@ -119,6 +107,10 @@ func shuffle() []string {
 }
 
 func InitChar() {
+
+	// create Char Matchers
+	addCharMatches([]string{"(", ")", "]"}, []string{"\"", "'"})
+	addCharMatches([]string{"~", "-", "^", "&", "+", "|", "@", "!", ":", "=", ",", "%"}, []string{"'"})
 
 	permutation := shuffle()
 
@@ -139,3 +131,10 @@ func InitChar() {
 	// would take some time.
 }
 
+func addCharMatches(matches []string, wrappers []string) {
+	for _, match := range matches {
+		for _, wrapper := range wrappers {
+			CharMatches = append(CharMatches, wrapper + match + wrapper)
+		}
+	}
+}

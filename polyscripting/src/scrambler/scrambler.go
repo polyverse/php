@@ -29,16 +29,16 @@ func init() {
 }
 
 func main() {
-	scanLines(lexFile, []byte("<ST_IN_SCRIPTING>"))
+	scanLines(lexFile, []byte("<ST_IN_SCRIPTING>"), true)
 	fmt.Println("Mapping Built. \nLex Scrambled.")
 	Buffer.Reset()
-	scanLines(yakFile, []byte("%token T_"))
+	scanLines(yakFile, []byte("%token T_"), false)
 	fmt.Println("Yak Scrambled.")
 	SerializeMap()
 	fmt.Println("Map Serialized.")
 }
 
-func scanLines(fileIn string, flag []byte) {
+func scanLines(fileIn string, flag []byte, scanNextLine bool) {
 	file, err := os.Open(fileIn)
 	Check(err)
 
@@ -46,18 +46,25 @@ func scanLines(fileIn string, flag []byte) {
 
 	for fileScanner.Scan() {
 		line := fileScanner.Bytes()
+		multiline := false
 
-		if ! IgnoreRegex.Match(line) { // Only process if not to be ignored
-			if bytes.HasPrefix(line, flag) && KeywordsRegex.Match(line) {
-				getWords(&line)
-			} else if bytes.HasPrefix(line, flag) && CharStrRegex.Match(line){
-				getCharStr(&line)
+		if bytes.HasPrefix(line, flag) && KeywordsRegex.Match(line) {
+			line = getWords(line)
+
+			// occasionally the next line may also contain the same keyword (in the rule). If so, process it.
+			if scanNextLine && fileScanner.Scan() {
+				nextline := fileScanner.Bytes()
+				nextline = getWords(nextline)
+				// append nextline to line
+				line = append(append(line, []byte("\n")...), nextline...)
+				multiline = true
 			}
-			if CharRegex.Match(line) {
-				getChar(&line)
-			}
-		} else {
-			fmt.Printf("Ignoring Line: %s\n", &line);
+		} else if bytes.HasPrefix(line, flag) && CharStrRegex.Match(line){
+			line = getCharStr(line)
+		}
+
+		if hasChar(line) {
+			line = getChar(line)
 		}
 
 		WriteLineToBuff(line)
@@ -68,8 +75,8 @@ func scanLines(fileIn string, flag []byte) {
 	Check(err)
 }
 
-func getWords(s *[]byte) {
-	line := string(*s)
+func getWords(s []byte) []byte {
+	line := string(s)
 	matchedRegex := KeywordsRegex.FindString(line)
 
 	for matchedRegex != "" {
@@ -90,15 +97,64 @@ func getWords(s *[]byte) {
 		line = strings.Replace(line, strings.TrimPrefix(matchedRegex, "\""), key, 1)
 		matchedRegex = KeywordsRegex.FindString(line)
 	}
-	*s = []byte(line)
+
+	return []byte(line)
 }
 
-func getChar(line *[]byte) {
-	*line = CharRegex.ReplaceAllFunc(*line, replaceFunction)
+func hasChar(line []byte) bool {
+	var stringifiedline = string(line)
+
+	for _, charMatch := range CharMatches {
+		if strings.Contains(stringifiedline, charMatch) {
+			return true
+		}
+	}
+
+	return false
 }
 
-func getCharStr(line *[]byte) {
-	*line = CharStrRegex.ReplaceAllFunc(*line, replaceFunction)
+func getChar(line []byte) []byte {
+	replace := bytes.NewBufferString("")
+
+	var doubleQuote byte = byte('"')
+	var singleQuote byte = byte('\'')
+
+	var inDoubleQuote=false
+	var inSingleQuote=false
+
+	cache := bytes.NewBufferString("")
+
+	for i := 0;  i < len(line); i++ {
+		if inSingleQuote && line[i] == singleQuote {
+			inSingleQuote = false
+			var substitution, _ = GetScrambled(cache.String())
+			replace.WriteString(substitution)
+			replace.WriteByte(line[i])
+		} else if inDoubleQuote && line[i] == doubleQuote {
+			inDoubleQuote = false
+			var substitution, _ = GetScrambled(cache.String())
+			replace.WriteString(substitution)
+			replace.WriteByte(line[i])
+		} else if inSingleQuote || inDoubleQuote {
+			cache.WriteByte(line[i])
+		} else if line[i] == singleQuote {
+			inSingleQuote = true
+			replace.WriteByte(line[i])
+			cache = bytes.NewBufferString("")
+		} else if line[i] == doubleQuote {
+			inDoubleQuote = true
+			replace.WriteByte(line[i])
+			cache = bytes.NewBufferString("")
+		} else {
+			replace.WriteByte(line[i])
+		}
+	}
+
+	return replace.Bytes()
+}
+
+func getCharStr(line []byte) []byte {
+	return CharStrRegex.ReplaceAllFunc(line, replaceFunction)
 }
 
 func replaceFunction(src []byte) []byte {
