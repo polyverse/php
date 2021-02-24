@@ -115,7 +115,7 @@ func shuffle() []string {
 }
 
 func InitChar() {
-
+	
 	// create Char Matchers
 	addCharMatches([]string{"(", ")", "]"}, []string{"\"", "'"})
 	addCharMatches([]string{"~", "-", "^", "&", "+", "|", "@", "!", ":", "=", ",", "%"}, []string{"'"})

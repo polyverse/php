@@ -4,7 +4,7 @@
  */
 
 include 'snip-transform.php';
-const LONG_OPTS = array("replace", "test", "dump", "phar", "inc");
+const LONG_OPTS = array("replace", "test", "dump", "phar", "inc", "dictionary:");
 
 set_error_handler("error_handle", E_USER_ERROR);
 
@@ -16,13 +16,14 @@ $out = "";
 $num_ps = 0;
 $is_snip = false;
 $is_test = false;
+$dictionary_path=null;
 
 
 
-arg_parse(getopt("s:p:", LONG_OPTS));
+arg_parse(getopt("s:p:d:", LONG_OPTS));
 
 if ($is_snip ) {
-    echo poly_snip($out, $is_test);
+    echo poly_snip($out, $is_test, $dictionary_path);
     return;
 }
 
@@ -59,7 +60,7 @@ echo "Done. Polyscripted " . $num_ps . " files\n";
 
 function arg_parse($opts)
 {
-    global $dump, $root_path, $out, $replace, $is_snip;
+    global $dump, $root_path, $out, $replace, $is_snip, $dictionary_path;
 
     if (array_key_exists("s", $opts) && array_key_exists("p", $opts)) {
         trigger_error("Cannot polyscript both path and snip.", E_USER_ERROR);
@@ -78,6 +79,13 @@ function arg_parse($opts)
     //Parse
     $replace = array_key_exists("replace", $opts);
     $dump = array_key_exists("dump", $opts);
+
+    if (array_key_exists("dictionary", $opts)) {
+        $dictionary_path = $opts["dictionary"];
+    } else if (array_key_exists("d", $opts)) {
+        $dictionary_path = $opts["d"];
+    }
+
     get_ext($opts);
 
     //Path handle
@@ -117,10 +125,10 @@ function polyscriptify($file_name, $fileOut)
     // ignore symlinks
     if (is_link($file_name)) { return; }
 
-    global $is_test;
+    global $is_test, $dictionary_path;
     $file_str = file_get_contents($file_name);
     $fp = fopen($fileOut, 'w');
-    fwrite($fp, poly_snip($file_str, $is_test));
+    fwrite($fp, poly_snip($file_str, $is_test, $dictionary_path));
     fclose($fp);
 }
 

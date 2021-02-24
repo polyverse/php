@@ -26,15 +26,17 @@ type QuotedStringOperator = func(string) string
 
 
 func init() {
-	dictFlag := flag.String("dict", "", "Prexisting JSON dictionary.")
+	dictFlag := flag.String("dict", "", "String: Prexisting scrambled JSON dictionary.")
+	charFlag := flag.Bool("chars", true, "Boolean: Scramble Character Tokens")
 	checkEnvs()
 	flag.Parse()
 	dictFile := *dictFlag
+	charScram := *charFlag
 	KeywordsRegex.Longest()
-	if dictFile == "" {
-		InitChar()
-	} else {
+	if dictFile != "" {
 		InitPolyWords(dictFile)
+	} else if charScram {
+		InitChar()
 	}
 }
 

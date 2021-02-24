@@ -3,6 +3,9 @@ FROM golang
 
 COPY src/transformer /polyscripting/
 COPY scripts /polyscripting/
+RUN go env -w GO111MODULE=auto
+
+
 
 COPY ./src/scrambler/* /go/src/github.com/polyverse/scrambler/
 
