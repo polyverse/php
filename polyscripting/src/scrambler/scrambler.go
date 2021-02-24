@@ -7,6 +7,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -21,24 +22,35 @@ const l_check = "zend_language_scanner.l"
 const zend_dir = "/Zend/"
 const source_env_var = "PHP_SRC_PATH"
 
+type QuotedStringOperator = func(string) string
+
 
 func init() {
+	dictFlag := flag.String("dict", "", "String: Prexisting scrambled JSON dictionary.")
+	charFlag := flag.Bool("chars", true, "Boolean: Scramble Character Tokens")
 	checkEnvs()
-	InitChar()
+	flag.Parse()
+	dictFile := *dictFlag
+	charScram := *charFlag
 	KeywordsRegex.Longest()
+	if dictFile != "" {
+		InitPolyWords(dictFile)
+	} else if charScram {
+		InitChar()
+	}
 }
 
 func main() {
-	scanLines(lexFile, []byte("<ST_IN_SCRIPTING>"))
+	scanLines(lexFile, []byte("<ST_IN_SCRIPTING>"), true)
 	fmt.Println("Mapping Built. \nLex Scrambled.")
 	Buffer.Reset()
-	scanLines(yakFile, []byte("%token T_"))
+	scanLines(yakFile, []byte("%token T_"), false)
 	fmt.Println("Yak Scrambled.")
 	SerializeMap()
 	fmt.Println("Map Serialized.")
 }
 
-func scanLines(fileIn string, flag []byte) {
+func scanLines(fileIn string, flag []byte, scanNextLine bool) {
 	file, err := os.Open(fileIn)
 	Check(err)
 
@@ -48,13 +60,23 @@ func scanLines(fileIn string, flag []byte) {
 		line := fileScanner.Bytes()
 
 		if bytes.HasPrefix(line, flag) && KeywordsRegex.Match(line) {
-			getWords(&line)
-		} else if bytes.HasPrefix(line, flag) && CharStrRegex.Match(line){
-			getCharStr(&line)
+			line = getWords(line, false)
+
+			// occasionally the next line may also contain the same keyword (in the rule). If so, process it.
+			if scanNextLine && fileScanner.Scan() {
+				nextline := fileScanner.Bytes()
+				nextline = getWords(nextline, true)
+				// append nextline to line
+				line = append(append(line, []byte("\n")...), nextline...)
+			}
+		} else if bytes.HasPrefix(line, flag) && CharStrRegex.Match(line) {
+			line = getCharStr(line)
 		}
-		if CharRegex.Match(line) {
-			getChar(&line)
+
+		if hasChar(line) {
+			line = getChar(line)
 		}
+
 		WriteLineToBuff(line)
 	}
 
@@ -63,13 +85,20 @@ func scanLines(fileIn string, flag []byte) {
 	Check(err)
 }
 
-func getWords(s *[]byte) {
-	line := string(*s)
+func getWords(s []byte, mustBeQuoted bool) []byte {
+	if mustBeQuoted {
+		return inMatchingQuotes(s, substituteWordsInString)
+	} else {
+		return []byte(substituteWordsInString(string(s)))
+	}
+}
+
+func substituteWordsInString(line string) string {
 	matchedRegex := KeywordsRegex.FindString(line)
 
 	for matchedRegex != "" {
 		index := KeywordsRegex.FindStringIndex(line)
-		suffix := string(line[index[1] - 1])
+		suffix := string(line[index[1]-1])
 		prefix := string(line[index[0]])
 
 		matchedRegex = strings.TrimSuffix(strings.TrimPrefix(matchedRegex, prefix), suffix)
@@ -85,20 +114,77 @@ func getWords(s *[]byte) {
 		line = strings.Replace(line, strings.TrimPrefix(matchedRegex, "\""), key, 1)
 		matchedRegex = KeywordsRegex.FindString(line)
 	}
-	*s = []byte(line)
+
+	return line
 }
 
-func getChar(line *[]byte) {
-	*line = CharRegex.ReplaceAllFunc(*line, replaceFunction)
+func hasChar(line []byte) bool {
+	var stringifiedline = string(line)
+
+	for _, charMatch := range CharMatches {
+		if strings.Contains(stringifiedline, charMatch) {
+			return true
+		}
+	}
+
+	return false
 }
 
-func getCharStr(line *[]byte) {
-	*line = CharStrRegex.ReplaceAllFunc(*line, replaceFunction)
+func getChar(line []byte) []byte {
+	GetScrambledWrapper := func(l string) string {
+		r, _ := GetScrambled(l)
+		return r
+	}
+	return inMatchingQuotes(line, GetScrambledWrapper)
+}
+
+func inMatchingQuotes(line []byte, operator QuotedStringOperator) []byte {
+	replace := bytes.NewBufferString("")
+
+	var doubleQuote byte = byte('"')
+	var singleQuote byte = byte('\'')
+
+	var inDoubleQuote = false
+	var inSingleQuote = false
+
+	cache := bytes.NewBufferString("")
+
+	for i := 0; i < len(line); i++ {
+		if inSingleQuote && line[i] == singleQuote {
+			inSingleQuote = false
+			var substitution = operator(cache.String())
+			replace.WriteString(substitution)
+			replace.WriteByte(line[i])
+		} else if inDoubleQuote && line[i] == doubleQuote {
+			inDoubleQuote = false
+			var substitution = operator(cache.String())
+			replace.WriteString(substitution)
+			replace.WriteByte(line[i])
+		} else if inSingleQuote || inDoubleQuote {
+			cache.WriteByte(line[i])
+		} else if line[i] == singleQuote {
+			inSingleQuote = true
+			replace.WriteByte(line[i])
+			cache = bytes.NewBufferString("")
+		} else if line[i] == doubleQuote {
+			inDoubleQuote = true
+			replace.WriteByte(line[i])
+			cache = bytes.NewBufferString("")
+		} else {
+			replace.WriteByte(line[i])
+		}
+	}
+
+	return replace.Bytes()
+}
+
+func getCharStr(line []byte) []byte {
+	return CharStrRegex.ReplaceAllFunc(line, replaceFunction)
 }
 
 func replaceFunction(src []byte) []byte {
 	var replace string
-	for i := 0;  i < len(src); i++ {
+	for i := 0; i < len(src); i++ {
 		char, _ := GetScrambled(string(src[i]))
 		replace += char
 	}

@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -32,9 +33,16 @@ var KeywordsRegex = regexp.MustCompile( //REGEX found as user @martindilling com
 		"(break|list|(x)?or|var|while)|" +
 		"(string|object|list|int(eger)?|real|float|[^_]AND|[^(R|_|F)(X)?)](X)?OR))[^a-zA-Z0-9]")
 
-
-
 var PolyWords = make(map[string]string)
+
+func InitPolyWords(filename string) {
+	file, _ := ioutil.ReadFile(filename)
+	err := json.Unmarshal(file, &PolyWords)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Print(PolyWords)
+}
 
 func AddToPolyWords(key string) bool {
 	var ok bool
@@ -72,7 +80,6 @@ func WriteLineToBuff(s []byte) {
 	Buffer.WriteString("\n")
 }
 
-
 func SerializeMap() {
 	encodeFile, err := os.Create(scrambledDictFile)
 
@@ -91,12 +98,11 @@ func SerializeMap() {
 
 }
 
-var CharRegex = regexp.MustCompile("(\"|')(\\(|\\))(\"|')|('~')|('-')|('\\^')|('&')|('\\+')|" +
-										"('\\|')|('@')|('!')|(':')|('=')|(\"]\")|(']')|(',')|('%')")
+var CharMatches = []string{}
+
 var CharStrRegex = regexp.MustCompile("(\")[^\\w\"]{2,}[ \"]")
 
-
-var symbolChars = [...]string{")","(","-","~","^","&","@","!","|","+",":","=",",","%","]"}
+var symbolChars = [...]string{")", "(", "-", "~", "^", "&", "@", "!", "|", "+", ":", "=", ",", "%", "]"}
 
 func shuffle() []string {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
@@ -109,6 +115,10 @@ func shuffle() []string {
 }
 
 func InitChar() {
+	
+	// create Char Matchers
+	addCharMatches([]string{"(", ")", "]"}, []string{"\"", "'"})
+	addCharMatches([]string{"~", "-", "^", "&", "+", "|", "@", "!", ":", "=", ",", "%"}, []string{"'"})
 
 	permutation := shuffle()
 
@@ -129,3 +139,10 @@ func InitChar() {
 	// would take some time.
 }
 
+func addCharMatches(matches []string, wrappers []string) {
+	for _, match := range matches {
+		for _, wrapper := range wrappers {
+			CharMatches = append(CharMatches, wrapper+match+wrapper)
+		}
+	}
+}

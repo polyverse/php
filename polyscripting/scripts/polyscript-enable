@@ -7,7 +7,7 @@ sed -i '/PHP_VERSION "/s/"$/-poly"/' main/php_version.h
 
 make -j "$(nproc)"
 find -type f -name '*.a' -delete;
-make install
+make install -j $(nproc)
 
 rm "$POLYSCRIPT_PATH"/polyscript-enable
 

@@ -13,8 +13,7 @@ const IGNORE = array(T_STRING, T_INLINE_HTML, T_CONSTANT_ENCAPSED_STRING, T_STAR
 const DICTIONARY = "/scrambled.json";
 const POLY_PATH = "POLYSCRIPT_PATH";
 
-
-$GLOBALS['keys_ps_map'];
+$GLOBALS["keys_ps_map"] = [];
 
 class String_State
 {
@@ -24,11 +23,13 @@ class String_State
 
 $str_state = new String_State();
 
-
-
-function poly_snip($snip, $is_test)
+function poly_snip($snip, $is_test, $dictionary_path = null)
 {
-    getDir(); init_str_count();
+    global $custom_dictionary;
+    if ($dictionary_path != null) {
+        $custom_dictionary=$dictionary_path;
+    }
+    get_dir(); init_str_count();
 
     global $tokens;
 
@@ -162,23 +163,30 @@ function stateFlip()
         $str_state->in_str = !$str_state->in_str;
 }
 
-
 function init_str_count() {
     global $str_state;
     $str_state->in_str = false;
     $str_state->curl_depth = 0;
 }
 
-function getDir()
+function get_dir()
 {
+    global $custom_dictionary;
     global $keys_ps_map;
+
+    if ($custom_dictionary) {
+        $keys_ps_map = json_decode(file_get_contents( $custom_dictionary), TRUE)
+        or exit ("Error: path given for dictionary could not be found.");
+        return;
+    }
+
     $parent = getenv(POLY_PATH);
     if ($parent == "") {
         $parent = ".";
-        echo "Polyscript dictoionary not found. Looking for scrambled.json in current directory.";
+        echo "Polyscript dictionary not found. Looking for scrambled.json in current directory.";
     }
     $keys_ps_map = json_decode(file_get_contents($parent . DICTIONARY), TRUE)
-    or exit ("Error: no polyscripting  dictionary found.");
+    or exit ("Error: no polyscripting dictionary found.");
 }
 
 //the following tests are used for .phpt files when testing expected output.
