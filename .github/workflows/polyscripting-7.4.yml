@@ -1,0 +1,31 @@
+name: Publish 7.4 Apache
+on: 
+  push:
+    paths: 
+      - '7.4/buster/apache/**'
+jobs:
+    build:
+      runs-on: ubuntu-latest
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Build
+        run: ./publish-image.sh
+        working-directory: ./7.4/buster/apache/
+      - uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Publish 7.4 Apache Docker Hub
+        run: ./publish-image.sh -p
+        shell: bash
+        working-directory: ./7.4/buster/apache/
+      - uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GHCR_PUBLISH_PERSONAL_ACCESS_TOKEN }}
+      - name: Publish 7.4 Apache Git Package Repository
+        run: ./publish-image.sh -g
+        shell: bash
+        working-directory: ./7.4/buster/apache/
