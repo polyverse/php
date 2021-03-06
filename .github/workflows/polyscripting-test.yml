@@ -23,6 +23,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GHCR_PUBLISH_PERSONAL_ACCESS_TOKEN }}
       - name: Publish 7.2 Git Package Repository
-        run: ./publish-image.sh -g
+        run: ./build.sh -g
         shell: bash
         working-directory: ./polyscripting/
