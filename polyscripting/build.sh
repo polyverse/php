@@ -1,5 +1,6 @@
 #!/bin/sh
 # Copyright (c) 2020 Polyverse Corporation
+set -e
 
 image="polyverse/php-polyscripting-builder"
 

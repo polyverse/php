@@ -1,5 +1,6 @@
 #!/bin/sh
 # Copyright (c) 2020 Polyverse Corporation
+set -e
 
 type="$(basename $PWD)"
 build="$(basename $(dirname $PWD))"
@@ -22,7 +23,7 @@ if [[ "$1" == "-p" ]]; then
     docker push $image:latest
 fi
 
-if if [[ "$1" == "-g" ]]; then
+if [[ "$1" == "-g" ]]; then
 	echo "Pushing to Github Container Repository"
 	docker tag $image:-$headsha ghcr.io/$image:$headsha
 	docker push ghcr.io/$image:$headsha
