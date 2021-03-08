@@ -1,4 +1,4 @@
-FROM ghcr.io/polyverse/php-polyscripting-builder:latest as builder
+FROM polyverse/php-polyscripting-builder:latest as builder
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "apply-templates.sh"
 #
