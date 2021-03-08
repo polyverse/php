@@ -1,8 +1,8 @@
 name: Verify Templating
 
 on:
-  pull_request:
-  push:
+#pull_request:
+#push:
 
 defaults:
   run:
