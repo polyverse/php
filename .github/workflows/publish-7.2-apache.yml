@@ -1,7 +1,9 @@
 name: Publish 7.2 Apache
 on: 
   push:
-
+          path:
+          - './7.2/stretch/apache/**'
+          - './.github/workflows/**'
 jobs:
     build:
       runs-on: ubuntu-latest

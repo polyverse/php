@@ -1,7 +1,8 @@
 name: Publish 7.4 Apache
 on: 
-  push:
-
+    push:
+       paths:
+       - '7.4/buster/apache/**' 
 jobs:
     build:
       runs-on: ubuntu-latest
