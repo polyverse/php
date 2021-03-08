@@ -1,8 +1,7 @@
 name: Publish 7.4 Apache
 on: 
   push:
-    paths: 
-      - '7.4/buster/apache/**'
+
 jobs:
     build:
       runs-on: ubuntu-latest
@@ -24,7 +23,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GHCR_PUBLISH_PERSONAL_ACCESS_TOKEN }}
+          password: ${{ secrets.CR_PAT }} 
       - name: Publish 7.4 Apache Git Package Repository
         run: ./publish-image.sh -g
         shell: bash

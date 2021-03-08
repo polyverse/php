@@ -1,8 +1,7 @@
 name: Publish 7.2 Apache Image 
 on: 
-  push:
-    paths: 
-      - 'polyscripting/**'
+        push:
+
 jobs:
     build:
       runs-on: ubuntu-latest
@@ -21,7 +20,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GHCR_PUBLISH_PERSONAL_ACCESS_TOKEN }}
+          password: ${{ secrets.CR_PAT }}
       - name: Publish 7.2 Git Package Repository
         run: ./build.sh -g
         shell: bash
