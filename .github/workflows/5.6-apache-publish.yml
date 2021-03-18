@@ -10,6 +10,7 @@ on:
           - '.github/workflows/publish-5.6-apache.yml'
 jobs:
     build:
+      if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
       runs-on: ubuntu-latest
       steps:
       - name: Checkout
