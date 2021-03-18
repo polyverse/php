@@ -10,7 +10,7 @@ on:
     - '.github/workflows/7.2-fpm-publish.yml'
 jobs:
     build:
-      if: ${{ github.event.workflow_run.conclusion == 'success' }} || ${{ github.event.action == 'release' }}
+      if: ${{ github.event.workflow_run.conclusion == 'success' }} || ${{ github.event_name == 'release' }}
       runs-on: ubuntu-latest
       steps:
       - name: Checkout
