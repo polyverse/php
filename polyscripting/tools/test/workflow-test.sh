@@ -9,7 +9,7 @@ git_root=`git rev-parse --show-toplevel`
 echo $image
 
 echo "Running image"
-docker run --name test-build -tid polyverse/ps-php7.4-buster-apache:latest bash
+docker run --name test-build -tid $image bash
 docker exec -w $polyscript_dir $container $polyscript_dir/build-scrambled.sh
 echo "copying test"
 docker cp $git_root/polyscripting/tools/test/ $container:$polyscript_dir
