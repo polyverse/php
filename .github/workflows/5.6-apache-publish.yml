@@ -7,7 +7,7 @@ on:
   push:
           paths:
           - '5.6/**'
-          - '.github/workflows/publish-5.6-apache.yml'
+          - '.github/workflows/5.6-apache-publish.yml'
 jobs:
     build:
       if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
