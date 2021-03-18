@@ -4,7 +4,7 @@ set -e
 test_site_path="./test/php-test-site"
 test_files="./test/tests/"
 
-"Polyscripting test files"
+echo "Polyscripting test files"
 s_php tok-php-transformer.php -p $test_site_path
 s_php tok-php-transformer.php -p $test_files --replace
 

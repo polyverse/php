@@ -1,8 +1,8 @@
 name: Publish 8.0 Apache
 on: 
   push:
-          - './7.2/stretch/apache/**'
-          - './.github/workflows/publish-7.2-apache.yml'
+          - './8.0/stretch/apache/**'
+          - './.github/workflows/publish-8.0-apache.yml'
           - './polyscripting/src/**'
           - './polyscripting/scripts/**'
 

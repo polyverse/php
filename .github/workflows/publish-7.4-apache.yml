@@ -2,8 +2,8 @@ name: Publish 7.4 Apache
 on: 
     push:
        paths:
-          - './7.2/stretch/apache/**'
-          - './.github/workflows/publish-7.2-apache.yml'
+          - './7.4/stretch/apache/**'
+          - './.github/workflows/publish-7.4-apache.yml'
           - './polyscripting/src/**'
           - './polyscripting/scripts/**'
 
