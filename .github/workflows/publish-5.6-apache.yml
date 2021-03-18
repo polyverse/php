@@ -7,7 +7,7 @@ on:
   push:
           paths:
           - '5.6/**'
-          - '.github/workflows/publish-5.6.yml'
+          - '.github/workflows/publish-5.6-publish.yml'
 jobs:
     build:
       runs-on: ubuntu-latest
