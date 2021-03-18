@@ -1,13 +1,13 @@
 name: Publish 7.2 Fpm
 on: 
-    workflow_run: 
-     workflows: ["Publish Polyscripting Tools"]
-      types:
+  workflow_run: 
+    workflows: ["Publish Polyscripting Tools"]
+    types:
       - completed
   push:
-          paths:
-          - '7.2/alpine3.11/fpm/**'
-          - '.github/workflows/7.2-fpm-publish.yml'
+   paths:
+    - '7.2/alpine3.11/fpm/**'
+    - '.github/workflows/7.2-fpm-publish.yml'
 jobs:
     build:
       runs-on: ubuntu-latest
