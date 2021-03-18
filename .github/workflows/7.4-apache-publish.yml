@@ -4,10 +4,10 @@ on:
      workflows: ["Publish Polyscripting Tools"]
      types:
       - completed
-    push:
-     paths:
-      - '7.4/stretch/apache/**'
-      - '.github/workflows/7.4-apache-publish.yml'
+     push:
+      paths:
+       - '7.4/stretch/apache/**'
+       - '.github/workflows/7.4-apache-publish.yml'
 jobs:
     build:
       runs-on: ubuntu-latest
