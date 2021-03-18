@@ -2,10 +2,10 @@ name: Publish 7.2 Apache
 on: 
   push:
           paths:
-          - './7.2/stretch/apache/**'
-          - './.github/workflows/publish-7.2-apache.yml'
-          - './polyscripting/src/**'
-          - './polyscripting/scripts/**'
+          - '7.2/stretch/apache/**'
+          - '.github/workflows/publish-7.2-apache.yml'
+          - 'polyscripting/src/**'
+          - 'polyscripting/scripts/**'
 jobs:
     build:
       runs-on: ubuntu-latest
