@@ -1,7 +1,8 @@
 name: Publish 7.2 Fpm
 on: 
-  workflow_run: ["Publish Polyscripting Tools"]
-    - types:
+    workflow_run: 
+     workflows: ["Publish Polyscripting Tools"]
+      types:
       - completed
   push:
           paths:

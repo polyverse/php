@@ -1,9 +1,9 @@
 name: Publish 7.4 Apache
 on: 
-   workflow_run: ["Publish Polyscripting Tools"]
-    - types:
+    workflow_run:
+     workflows: ["Publish Polyscripting Tools"]
+      types:
       - completed
-
    push:
     paths:
       - '7.4/stretch/apache/**'
