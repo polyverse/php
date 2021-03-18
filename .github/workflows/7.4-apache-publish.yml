@@ -1,11 +1,13 @@
-name: Publish 7.2 Apache
+name: Publish 7.4 Apache
 on: 
-  push:
-          paths:
-          - '7.2/stretch/apache/**'
-          - '.github/workflows/publish-7.2-apache.yml'
-          - 'polyscripting/src/**'
-          - 'polyscripting/scripts/**'
+   workflow_run: ["Publish Polyscripting Tools"]
+    - types:
+      - completed
+
+   push:
+    paths:
+      - '7.4/stretch/apache/**'
+      - '.github/workflows/7.4-apache-publish.yml'
 jobs:
     build:
       runs-on: ubuntu-latest
@@ -14,7 +16,7 @@ jobs:
         uses: actions/checkout@v1
       - name: Build
         run: ./publish-image.sh
-        working-directory: ./7.2/stretch/apache/
+        working-directory: ./7.4/buster/apache/
       - name: Run Test Suite
         run: ./workflow-test.sh
         working-directory: ./polyscripting/tools/test/
@@ -23,15 +25,15 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PUBLISH_PERSONAL_ACCESS_TOKEN }} 
-      - name: Publish 7.2 Apache Git Package Repository
+      - name: Publish 7.4 Apache Git Package Repository
         run: ./publish-image.sh -g
         shell: bash
-        working-directory: ./7.2/stretch/apache/
+        working-directory: ./7.4/buster/apache/
       - uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Publish 7.2 Apache Docker Hub
+      - name: Publish 7.4 Apache Docker Hub
         run: ./publish-image.sh -p
         shell: bash
-        working-directory: ./7.2/stretch/apache/
+        working-directory: ./7.4/buster/apache/
