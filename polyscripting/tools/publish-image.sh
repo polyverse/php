@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 # Copyright (c) 2020 Polyverse Corporation
+set -e
 
 type="$(basename $PWD)"
 build="$(basename $(dirname $PWD))"
@@ -13,11 +14,17 @@ headsha=$(git rev-parse --verify HEAD)
 
 echo "Building image $image:$headsha"
 docker build -t $image:$headsha .
-docker push $image:$headsha
-
+docker tag $image:$headsha $image:latest
 
 if [[ "$1" == "-p" ]]; then
     echo "Pushing as latest tag..."
-    docker tag $image:$headsha $image:latest
+    docker push $image:$headsha
     docker push $image:latest
+fi
+
+if [[ "$1" == "-g" ]]; then
+	echo "Pushing to Github Container Repository"
+	docker tag $image:$headsha ghcr.io/$image:$headsha
+	docker tag $image:$headsha ghcr.io/$image:latest
+	docker push ghcr.io/$image:$headsha
 fi
