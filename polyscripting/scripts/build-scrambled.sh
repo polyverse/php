@@ -12,8 +12,8 @@ else
      rm $PHP_EXEC/php
 fi
 
-./save-current-scramble.sh vanilla-save
-./php-scrambler
+$PHP_SRC_PATH/save-current-scramble.sh vanilla-save
+$PHP_SRC_PATH/php-scrambler
 
 OWD=$PWD
 

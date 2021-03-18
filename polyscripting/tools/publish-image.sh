@@ -29,3 +29,5 @@ if [[ "$1" == "-g" ]]; then
 	docker tag $image:$headsha ghcr.io/$image:latest
 	docker push ghcr.io/$image:$headsha
 fi
+
+retrun $image:$headsha

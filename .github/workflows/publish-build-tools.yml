@@ -15,7 +15,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Publish Polyscripting Tools Docker Hub
-        run: ./build.sh -p
+        run: ./publish-image.sh -p
         shell: bash
         working-directory: ./polyscripting/
       - uses: docker/login-action@v1
@@ -24,6 +24,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PUBLISH_PERSONAL_ACCESS_TOKEN }}
       - name: Publish Polyscripting Tools Git Package Repository
-        run: ./build.sh -g
+        run: ./publish-image.sh -g
         shell: bash
         working-directory: ./polyscripting/

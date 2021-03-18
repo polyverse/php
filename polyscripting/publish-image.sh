@@ -10,7 +10,6 @@ headsha=$(git rev-parse --verify HEAD)
 docker build -t $image:$headsha .
 docker tag $image:$headsha $image:latest
 
-
 if [[ "$1" == "-p" ]]; then
 	docker push $image:$headsha
 	docker tag $image:$headsha $image:latest
