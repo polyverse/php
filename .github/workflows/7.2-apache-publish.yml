@@ -5,9 +5,9 @@ on:
     types:
       - completed
   push:
-          paths:
-          - '7.2/stretch/apache/**'
-          - '.github/workflows/publish-7.2-apache.yml'
+   paths:
+    - '7.2/stretch/apache/**'
+    - '.github/workflows/publish-7.2-apache.yml'
 jobs:
     build:
       runs-on: ubuntu-latest
