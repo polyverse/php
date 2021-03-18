@@ -13,6 +13,8 @@ jobs:
       if: ${{ github.event.workflow_run.conclusion == 'success' }} || ${{ github.event_name == 'pull_request' }}
       runs-on: ubuntu-latest
       steps:
+      - name: Event Name
+        run: echo ${event_name}
       - name: Checkout
         uses: actions/checkout@v1
       - name: Build
