@@ -1,7 +1,7 @@
 name: Publish 7.2 Fpm
 on: 
   push:
-          path:
+          paths:
           - './7.2/alpine3.11/fpm/**'
           - '.github/workflows/publish-7.2-fpm.yml'
           - './polyscripting/src/**'

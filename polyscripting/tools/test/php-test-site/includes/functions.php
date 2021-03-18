@@ -33,7 +33,7 @@ function nav_menu($sep = ' | ')
     $nav_items = config('nav_menu');
     
     foreach ($nav_items as $uri => $name) {
-        $query_string = str_replace('page=', '', $_SERVER['QUERY_STRING'] ?? '');
+        $query_string = str_replace('page=', '', $_SERVER['QUERY_STRING'] ?: '');
         $class = $query_string == $uri ? ' active' : '';
         $url = config('site_url') . '/' . (config('pretty_uri') || $uri == '' ? '' : '?page=') . $uri;
         
