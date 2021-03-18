@@ -1,3 +1,1 @@
 .jq-template.awk
-.github/workflows/ci.yml
- .github/workflows/verify-templating.yml

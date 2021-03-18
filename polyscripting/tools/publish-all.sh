@@ -2,7 +2,7 @@
 # Copyright (c) 2020 Polyverse Corporation
 
 cd ..
-./build.sh
+./build.sh -p
 cd ..
 
 ROOT=$PWD
@@ -12,13 +12,7 @@ echo $FILES
 echo "Building and pushing all polyscripted php images tagged with current gitsha."
 for d in $FILES; do
 	cd $d
-	echo "STARTING: building and publishing $d"
-	if [[ "$1" == "-p" ]]; then 
-		./publish-image.sh -p 
-	elif [[ "$1" == "-g" ]]; then
-		./publish-image.sh -g
-	else 
-		./publish-image.sh
-	fi
+	echo "building and publishing $d"
+	./publish-image.sh -p 
 	cd $ROOT
 done

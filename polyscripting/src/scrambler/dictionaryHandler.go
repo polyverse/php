@@ -98,8 +98,6 @@ func SerializeMap() {
 
 }
 
-var CharLexTokens = regexp.MustCompile("TOKENS")
-
 var CharMatches = []string{}
 
 var CharStrRegex = regexp.MustCompile("(\")[^\\w\"]{2,}[ \"]")

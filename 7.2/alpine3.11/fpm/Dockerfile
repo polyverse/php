@@ -180,6 +180,8 @@ RUN set -eux; \
 	)"; \
 	apk add --no-cache $runDeps; \
 	\
+	apk del --no-network .build-deps; \
+	\
 # update pecl channel definitions https://github.com/docker-library/php/issues/443
 	pecl update-channels; \
 	rm -rf /tmp/pear ~/.pearrc; \
