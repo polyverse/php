@@ -4,7 +4,7 @@ set -e
 
 type="$(basename $PWD)"
 build="$(basename $(dirname $PWD))"
-php_ver="$(basename $(dirname $(dirname $PWD)))"
+php_ver="5.6"
 image="polyverse/ps-php${php_ver}-${build}-${type}"
 
 echo "Image $image being built"
@@ -28,3 +28,4 @@ if [[ "$1" == "-g" ]]; then
 	docker tag $image:$headsha ghcr.io/$image:latest
 	docker push ghcr.io/$image:$headsha
 fi
+

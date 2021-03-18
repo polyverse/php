@@ -1,0 +1,40 @@
+name: Publish 7.4 Apache
+on: 
+  workflow_run:
+     workflows: ["Publish Polyscripting Tools"]
+     types:
+      - completed
+  push:
+      paths:
+       - '.github/workflows/7.4-apache-publish.yml'
+       - '7.4/stretch/apache/**'
+jobs:
+    build:
+      if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+      runs-on: ubuntu-latest
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Build
+        run: ./publish-image.sh
+        working-directory: ./7.4/buster/apache/
+      - name: Run Test Suite
+        run: ./workflow-test.sh
+        working-directory: ./polyscripting/tools/test/
+      - uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PUBLISH_PERSONAL_ACCESS_TOKEN }} 
+      - name: Publish 7.4 Apache Git Package Repository
+        run: ./publish-image.sh -g
+        shell: bash
+        working-directory: ./7.4/buster/apache/
+      - uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Publish 7.4 Apache Docker Hub
+        run: ./publish-image.sh -p
+        shell: bash
+        working-directory: ./7.4/buster/apache/
