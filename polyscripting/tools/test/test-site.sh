@@ -65,12 +65,12 @@ if curl -f  http://localhost:8000/; then
 else
 	test_failure "FAILED: Polyscipted site could not be reached."
 fi
-
+cd -
 for file in $test_files 
 do
-	if php -l file; then
-		"SUCCES: " file
+	if php -l $file; then
+		echo "SUCCES: " $file
 	else 
-		test_failure "FAILURE: " file
+		test_failure "FAILURE: " $file
 	fi
 done	

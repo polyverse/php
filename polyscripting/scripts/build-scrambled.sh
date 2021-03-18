@@ -5,6 +5,10 @@ if [ ! -v PHP_EXEC ]; then
 	PHP_EXEC=/usr/local/bin
 fi
 
+if [ ! -v POLYSCRIPT_PATH ]; then
+	POLYSCRIPT_PATH=/usr/local/bin/polyscripting
+fi
+
 if [ ! -f "${PHP_EXEC}/s_php" ]; then
      # Make default php not work
      mv $PHP_EXEC/php $PHP_EXEC/s_php
@@ -12,8 +16,8 @@ else
      rm $PHP_EXEC/php
 fi
 
-$PHP_SRC_PATH/save-current-scramble.sh vanilla-save
-$PHP_SRC_PATH/php-scrambler
+$POLYSCROPT_PATH/save-current-scramble.sh vanilla-save
+$POLYSCRIPT_PATH/php-scrambler
 
 OWD=$PWD
 

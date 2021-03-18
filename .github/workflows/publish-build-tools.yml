@@ -2,8 +2,8 @@ name: Publish Polyscripting Tools
 on: 
         push:
                 paths: 
-                - './polyscripting'
-                - './.github/workflows'
+                - './polyscripting/**'
+                - './.github/workflows/publish-build-tools.yml'
 jobs:
     build:
       runs-on: ubuntu-latest
