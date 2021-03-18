@@ -2,12 +2,12 @@ name: Publish 7.4 Apache
 on: 
     workflow_run:
      workflows: ["Publish Polyscripting Tools"]
-      types:
+     types:
       - completed
-   push:
-    paths:
-      - '7.4/stretch/apache/**'
-      - '.github/workflows/7.4-apache-publish.yml'
+     push:
+      paths:
+       - '7.4/stretch/apache/**'
+       - '.github/workflows/7.4-apache-publish.yml'
 jobs:
     build:
       runs-on: ubuntu-latest
