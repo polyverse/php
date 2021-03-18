@@ -2,10 +2,10 @@ name: Publish 8.0 Apache
 on:
     workflow_run: 
      workflows: ["Publish Polyscripting Tools"]
-      types:
+     types:
       - completed
-  push:
-    paths:
+    push:
+     paths:
       - '8.0/buster/apache/**'
       - '.github/workflows/8.0-apache-publish.yml'
 jobs:
