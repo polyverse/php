@@ -16,7 +16,7 @@ else
      rm $PHP_EXEC/php
 fi
 
-$POLYSCROPT_PATH/save-current-scramble.sh vanilla-save
+$POLYSCRIPT_PATH/save-current-scramble.sh vanilla-save
 $POLYSCRIPT_PATH/php-scrambler
 
 OWD=$PWD
