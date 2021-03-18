@@ -280,7 +280,6 @@ ENTRYPOINT ["docker-php-entrypoint"]
 # https://httpd.apache.org/docs/2.4/stopping.html#gracefulstop
 STOPSIGNAL SIGWINCH
 
-COPY this_worked /usr/local/bin/polyscripting
 COPY apache2-foreground /usr/local/bin/
 WORKDIR /var/www/html
 
