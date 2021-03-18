@@ -5,6 +5,7 @@ on:
           - './7.2/stretch/apache/**'
           - './.github/workflows/publish-7.2-apache.yml'
           - './polyscripting/src/**'
+          - './polyscripting/scripts/**'
 jobs:
     build:
       runs-on: ubuntu-latest
