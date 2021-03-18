@@ -1,11 +1,13 @@
 name: Publish 5.6 
 on: 
+  workflow_run: 
+    workflows: ["Publish Polyscripting Tools"]
+    types:
+      - completed
   push:
           paths:
           - '5.6/**'
           - '.github/workflows/publish-5.6.yml'
-          - 'polyscripting/src/**'
-          - 'polyscripting/scripts/**'
 jobs:
     build:
       runs-on: ubuntu-latest
