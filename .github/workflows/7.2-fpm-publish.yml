@@ -10,8 +10,11 @@ on:
     - '.github/workflows/7.2-fpm-publish.yml'
 jobs:
     build:
+      if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
       runs-on: ubuntu-latest
       steps:
+      - name: Event Name
+        run: echo ${{ github.event_name }}
       - name: Checkout
         uses: actions/checkout@v1
       - name: Build
