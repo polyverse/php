@@ -106,7 +106,7 @@ var CharMatches = []string{}
 
 var CharStrRegex = regexp.MustCompile("(\")[^\\w\"]{2,}[ \"]")
 
-var symbolChars = [...]string{")", "(", ";", "-", "~", "^", "&", "@", "!", "|", "+", ":", "=", ",", "%", "]"}
+var symbolChars = [...]string{")", "(", "-", "~", "^", "&", "@", "!", "|", "+", ":", "=", ",", "%", "]"}
 var specialChars = []string{"(", ")", "]"}
 
 func shuffle() []string {
@@ -122,7 +122,7 @@ func shuffle() []string {
 func InitChar() {
 	// create Char Matchers
 	addCharMatches(specialChars, []string{"\"", "'"})
-	addCharMatches([]string{"~", "-", ";", "^", "&", "+", "|", "@", "!", ":", "=", ",", "%"}, []string{"'"})
+	addCharMatches([]string{"~", "-", "^", "&", "+", "|", "@", "!", ":", "=", ",", "%"}, []string{"'"})
 
 	if !PreMadeDict {
 		permutationGen()
