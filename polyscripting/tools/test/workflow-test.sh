@@ -8,7 +8,7 @@ trap "docker stop $container" EXIT
 echo $image
 
 echo "Running image"
-docker run --rm --name "$container" -tid "$image" bash
+docker run --rm --name "$container" -tid "$image:latest" bash
 docker exec -w $polyscript_dir $container $polyscript_dir/build-scrambled.sh
 echo "copying test"
 docker cp $git_root/polyscripting/tools/test/ $container:$polyscript_dir
