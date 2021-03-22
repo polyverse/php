@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -38,6 +39,7 @@ func init() {
 	} else if charScram {
 		InitChar()
 	}
+	checkTokens(lexFile)
 }
 
 func main() {
@@ -48,6 +50,37 @@ func main() {
 	fmt.Println("Yak Scrambled.")
 	SerializeMap()
 	fmt.Println("Map Serialized.")
+}
+
+func checkTokens(lexFile string) {
+	file, err := ioutil.ReadFile(lexFile)
+	Check(err)
+
+	const tokens = "TOKENS [;:,.|^&+-/*=%!~$<>?@"
+	const spec_case = "[[(){}\"`"
+
+	lines := strings.Split(string(file), "\n")
+	for i, line := range lines {
+		if strings.Contains(line, tokens) {
+			outLine := tokens
+			for key, val := range SpecialChar {
+				outLine = strings.Replace(outLine, val, key, 1)
+			}
+			lines[i] = outLine + "]"
+		} else if strings.Contains(line,spec_case) {
+			outLine := spec_case
+			for key, val := range SpecialChar {
+				outLine = strings.Replace(outLine, val, key, 1)
+			}
+			lines[i] = "<ST_VAR_OFFSET>{TOKENS}|" + outLine + "] {"
+		}
+	}
+	output := strings.Join(lines, "\n")
+	err = ioutil.WriteFile(lexFile, []byte(output), 0644)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 }
 
 func scanLines(fileIn string, flag []byte, scanNextLine bool) {
@@ -94,7 +127,9 @@ func getWords(s []byte, mustBeQuoted bool) []byte {
 }
 
 func substituteWordsInString(line string) string {
+	matchedRegexStart := KeywordsRegex.FindString(line)
 	matchedRegex := KeywordsRegex.FindString(line)
+
 
 	for matchedRegex != "" {
 		index := KeywordsRegex.FindStringIndex(line)
@@ -104,15 +139,20 @@ func substituteWordsInString(line string) string {
 		matchedRegex = strings.TrimSuffix(strings.TrimPrefix(matchedRegex, prefix), suffix)
 		key := strings.TrimPrefix(matchedRegex, "\"")
 
-		if _, ok := GetScrambled(key); !ok {
+		if _, ok := GetScrambled(key); ok || PreMadeDict {
+			key, _ = GetScrambled(key)
+		} else {
 			AddToPolyWords(strings.ToLower(key))
 			key, _ = GetScrambled(strings.ToLower(key))
-		} else {
-			key, _ = GetScrambled(key)
 		}
 
 		line = strings.Replace(line, strings.TrimPrefix(matchedRegex, "\""), key, 1)
 		matchedRegex = KeywordsRegex.FindString(line)
+
+		if (matchedRegex == matchedRegexStart) {
+			fmt.Println(matchedRegex + ": Not added to dictionary.")
+			return line
+		}
 	}
 
 	return line
@@ -141,8 +181,8 @@ func getChar(line []byte) []byte {
 func inMatchingQuotes(line []byte, operator QuotedStringOperator) []byte {
 	replace := bytes.NewBufferString("")
 
-	var doubleQuote byte = byte('"')
-	var singleQuote byte = byte('\'')
+	var doubleQuote = byte('"')
+	var singleQuote = byte('\'')
 
 	var inDoubleQuote = false
 	var inSingleQuote = false
