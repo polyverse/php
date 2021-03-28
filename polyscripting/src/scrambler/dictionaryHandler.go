@@ -34,14 +34,18 @@ var KeywordsRegex = regexp.MustCompile( //REGEX found as user @martindilling com
 		"(string|object|list|int(eger)?|real|float|[^_]AND|[^(R|_|F)(X)?)](X)?OR))[^a-zA-Z0-9]")
 
 var PolyWords = make(map[string]string)
+var SpecialChar = make(map[string]string)
+var PreMadeDict = false
 
 func InitPolyWords(filename string) {
+	PreMadeDict = true
 	file, _ := ioutil.ReadFile(filename)
 	err := json.Unmarshal(file, &PolyWords)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Print(PolyWords)
+	InitChar()
 }
 
 func AddToPolyWords(key string) bool {
@@ -98,13 +102,12 @@ func SerializeMap() {
 
 }
 
-var CharLexTokens = regexp.MustCompile("TOKENS")
-
 var CharMatches = []string{}
 
 var CharStrRegex = regexp.MustCompile("(\")[^\\w\"]{2,}[ \"]")
 
 var symbolChars = [...]string{")", "(", "-", "~", "^", "&", "@", "!", "|", "+", ":", "=", ",", "%", "]"}
+var specialChars = []string{"(", ")", "]"}
 
 func shuffle() []string {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
@@ -117,15 +120,20 @@ func shuffle() []string {
 }
 
 func InitChar() {
-	
 	// create Char Matchers
-	addCharMatches([]string{"(", ")", "]"}, []string{"\"", "'"})
+	addCharMatches(specialChars, []string{"\"", "'"})
 	addCharMatches([]string{"~", "-", "^", "&", "+", "|", "@", "!", ":", "=", ",", "%"}, []string{"'"})
 
-	permutation := shuffle()
+	if !PreMadeDict {
+		permutationGen()
+	}
 
-	for _, char := range symbolChars {
-		PolyWords[char], permutation = permutation[0], permutation[1:]
+	for _, char := range specialChars {
+		out := PolyWords[char]
+		if char == "]" {
+			char = "\\]"
+		}
+		SpecialChar[char] = out
 	}
 
 	//TODO:
@@ -133,7 +141,6 @@ func InitChar() {
 	//			char, will throw an error. Both '[' and '-' have this issue, but because of how '[' is tokenized,
 	//			scrambling becomes an issue.
 	//'.' Creates issue with decimal numbers
-	//';' Creates issue with close tags.
 	// '>' '<' '?' create issues with open and close tags
 	// '$' creates issues with variables
 	// '/' and '*' crete issues with comments.
@@ -147,4 +154,17 @@ func addCharMatches(matches []string, wrappers []string) {
 			CharMatches = append(CharMatches, wrapper+match+wrapper)
 		}
 	}
+}
+
+func permutationGen() {
+	permutation := shuffle()
+
+	for _, char := range symbolChars {
+		PolyWords[char], permutation = permutation[0], permutation[1:]
+	}
+
+	if PolyWords["("] == "]" || PolyWords[")"] == "]" {
+		permutationGen()
+	}
+	return
 }
