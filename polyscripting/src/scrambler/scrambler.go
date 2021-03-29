@@ -25,7 +25,6 @@ const source_env_var = "PHP_SRC_PATH"
 
 type QuotedStringOperator = func(string) string
 
-
 func init() {
 	dictFlag := flag.String("dict", "", "String: Prexisting scrambled JSON dictionary.")
 	charFlag := flag.Bool("chars", true, "Boolean: Scramble Character Tokens")
@@ -67,7 +66,7 @@ func checkTokens(lexFile string) {
 				outLine = strings.Replace(outLine, val, key, 1)
 			}
 			lines[i] = outLine + "]"
-		} else if strings.Contains(line,spec_case) {
+		} else if strings.Contains(line, spec_case) {
 			outLine := spec_case
 			for key, val := range SpecialChar {
 				outLine = strings.Replace(outLine, val, key, 1)
@@ -129,7 +128,6 @@ func getWords(s []byte, mustBeQuoted bool) []byte {
 func substituteWordsInString(line string) string {
 	matchedRegexStart := KeywordsRegex.FindString(line)
 	matchedRegex := KeywordsRegex.FindString(line)
-
 
 	for matchedRegex != "" {
 		index := KeywordsRegex.FindStringIndex(line)
