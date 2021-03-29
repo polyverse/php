@@ -27,7 +27,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PUBLISH_PERSONAL_ACCESS_TOKEN }} 
+          password: ${{ secrets.GHCR_POLYSCRIPTING_SECRET }} 
       - name: Publish 7.2 Fpm Git Package Repository
         run: ./publish-image.sh -g
         shell: bash
@@ -40,3 +40,10 @@ jobs:
         run: ./publish-image.sh -p
         shell: bash
         working-directory: ./7.2/alpine3.11/fpm/
+      - name: Trigger Downstream
+        run: |
+             curl -X POST https://api.github.com/repos/polyverse/polyscripted-wordpress/dispatches \
+             -H 'Accept: application/vnd.github.everest-preview+json' \
+             -u ${{ secrets.GHCR_POLYSCRIPTING_SECRET }}  \
+             --data '{"event_type" : "build_7.2_fpm", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
+
