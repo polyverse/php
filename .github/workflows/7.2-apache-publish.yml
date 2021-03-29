@@ -25,7 +25,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_POLYSCRIPTING_SECRET }} 
+          password: ${{ secrets.GHCR_PUBLISH_PERSONAL_ACCESS_TOKEN }} 
       - name: Publish 7.2 Apache Git Package Repository
         run: ./publish-image.sh -g
         shell: bash
