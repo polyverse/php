@@ -25,7 +25,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PUBLISH_PERSONAL_ACCESS_TOKEN }} 
+          password: ${{ secrets.GHCR_POLYSCRIPTING_SECRET }}
       - name: Publish 8.0 Apache Git Package Repository
         run: ./publish-image.sh -g
         shell: bash
@@ -38,3 +38,10 @@ jobs:
         run: ./publish-image.sh -p
         shell: bash
         working-directory: ./8.0/buster/apache/
+      - name: Trigger Downstream
+        run: |
+             curl -X POST https://api.github.com/repos/polyverse/polyscripted-wordpress/dispatches \
+             -H 'Accept: application/vnd.github.everest-preview+json' \
+             -u ${{ secrets.GHCR_POLYSCRIPTING_SECRET }}  \
+             --data '{"event_type" : "build_8.0_apache", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
+        
