@@ -48,6 +48,9 @@ RUN set -eux; \
 	chown www-data:www-data /var/www/html; \
 	chmod 777 /var/www/html
 
+# https://github.com/docker-library/php/pull/939#issuecomment-730501748
+ENV PHP_EXTRA_CONFIGURE_ARGS --enable-embed
+
 # Apply stack smash protection to functions using local buffers and alloca()
 # Make PHP's main executable position-independent (improves ASLR security mechanism, and has no performance impact on x86_64)
 # Enable optimization (-O2)
@@ -60,9 +63,9 @@ ENV PHP_LDFLAGS="-Wl,-O1 -pie"
 
 ENV GPG_KEYS 1729F83938DA44E27BA0F4D3DBDB397470D12172 BFDDD28642824F8118EF77909B67A5C12229118F
 
-ENV PHP_VERSION 8.0.0
-ENV PHP_URL="https://www.php.net/distributions/php-8.0.0.tar.xz" PHP_ASC_URL="https://www.php.net/distributions/php-8.0.0.tar.xz.asc"
-ENV PHP_SHA256="b5278b3eef584f0c075d15666da4e952fa3859ee509d6b0cc2ed13df13f65ebb"
+ENV PHP_VERSION 8.0.8
+ENV PHP_URL="https://www.php.net/distributions/php-8.0.8.tar.xz" PHP_ASC_URL="https://www.php.net/distributions/php-8.0.8.tar.xz.asc"
+ENV PHP_SHA256="dc1668d324232dec1d05175ec752dade92d29bb3004275118bc3f7fc7cbfbb1c"
 
 RUN set -eux; \
 	\
@@ -84,7 +87,7 @@ RUN set -eux; \
 		curl -fsSL -o php.tar.xz.asc "$PHP_ASC_URL"; \
 		export GNUPGHOME="$(mktemp -d)"; \
 		for key in $GPG_KEYS; do \
-			gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+			gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
 		done; \
 		gpg --batch --verify php.tar.xz.asc php.tar.xz; \
 		gpgconf --kill all; \
