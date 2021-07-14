@@ -1,7 +1,25 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-[ -f versions.json ] # run "versions.sh" first
+# Don't tolerate outdated bash on Darwin
+[ "${BASH_VERSINFO:-0}" -ge 4 ] || ( echo "Outdated bash version: ${BASH_VERSION}. If you're on MacOS/Darwin, please 'brew install bash' to move away from this comically outdated version." && exit 1)
+
+[ -f versions.json ] || (echo "run 'versions.sh' first so templates can be applied to the right versions" && exit 1)
+
+type gawk >/dev/null 2>&1 || (echo "Please install the gawk command. On MacOS, run 'brew install gawk'" && exit 1)
+
+# GNU sed for Mac.
+# Copied from:
+# https://gist.github.com/bittner/5436f3dc011d43ab7551#file-gnu-tools-for-mac-sh
+[[ `uname` == 'Darwin' ]] && {
+	which gsed > /dev/null && {
+		unalias sed
+		alias sed=gsed
+	} || {
+		echo 'ERROR: GNU sed required for Mac. You may use homebrew to install it: brew install gnu-sed'
+		exit 1
+	}
+}
 
 jqt='.jq-template.awk'
 if [ -n "${BASHBREW_SCRIPTS:-}" ]; then
