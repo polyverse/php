@@ -4,7 +4,7 @@
  */
 
 include 'snip-transform.php';
-const LONG_OPTS = array("replace", "test", "dump", "phar", "inc", "dictionary:");
+const LONG_OPTS = array("replace", "test", "dump", "phar", "inc", "dictionary:", "memory_limit");
 
 set_error_handler("error_handle", E_USER_ERROR);
 
@@ -61,6 +61,12 @@ echo "Done. Polyscripted " . $num_ps . " files\n";
 function arg_parse($opts)
 {
     global $dump, $root_path, $out, $replace, $is_snip, $dictionary_path;
+
+    if (array_key_exists("memory_limit", $opts)) {
+        $memory_limit = $opts["memory_limit"];
+        echo "Setting memory limit to: $memory_limit \n";
+        ini_set('memory_limit', $memory_limit);
+    }
 
     if (array_key_exists("s", $opts) && array_key_exists("p", $opts)) {
         trigger_error("Cannot polyscript both path and snip.", E_USER_ERROR);
