@@ -64,7 +64,7 @@ function arg_parse($opts)
 
     if (array_key_exists("memory_limit", $opts)) {
         $memory_limit = $opts["memory_limit"];
-        echo "Setting memory limit to: " . $opts["memory_limit"] . "\n";
+        echo "Setting memory limit to: " . $memory_limit . "\n";
         ini_set('memory_limit', $memory_limit);
     }
 
