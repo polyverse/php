@@ -11,10 +11,11 @@ type gawk >/dev/null 2>&1 || (echo "Please install the gawk command. On MacOS, r
 # GNU sed for Mac.
 # Copied from:
 # https://gist.github.com/bittner/5436f3dc011d43ab7551#file-gnu-tools-for-mac-sh
+sedcmd="sed"
+
 [[ `uname` == 'Darwin' ]] && {
 	which gsed > /dev/null && {
-		unalias sed
-		alias sed=gsed
+		sedcmd="gsed"
 	} || {
 		echo 'ERROR: GNU sed required for Mac. You may use homebrew to install it: brew install gnu-sed'
 		exit 1
@@ -94,7 +95,7 @@ for version; do
 
 		cmd="$(jq <<<"$cmd" -r '.[0]')"
 		if [ "$cmd" != 'php' ]; then
-			sed -i -e 's! php ! '"$cmd"' !g' "$version/$dir/docker-php-entrypoint"
+			$sedcmd -i -e 's! php ! '"$cmd"' !g' "$version/$dir/docker-php-entrypoint"
 		fi
 	done
 done
