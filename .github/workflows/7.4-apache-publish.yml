@@ -43,4 +43,4 @@ jobs:
              curl -X POST https://api.github.com/repos/polyverse/polyscripted-wordpress/dispatches \
              -H 'Accept: application/vnd.github.everest-preview+json' \
              -u ${{ secrets.GHCR_POLYSCRIPTING_SECRET }}  \
-             --data '{"event_type" : "build_7.4", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
+             --data '{"event_type" : "build_7.4_apache", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
